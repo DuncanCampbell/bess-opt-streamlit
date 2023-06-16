@@ -208,8 +208,6 @@ if st.button('Run Optimization'):
     # Reset the index of metrics DataFrame
     metrics.reset_index(drop=True, inplace=True)
 
-    import streamlit as st
-
     # Calculate total metrics
     total_discharging_revenue = metrics['Discharging Revenue ($)'].sum()
     total_charging_costs = metrics['Charging Costs ($)'].sum()
