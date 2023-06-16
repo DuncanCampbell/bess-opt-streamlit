@@ -187,9 +187,26 @@ table = go.Figure(data=[go.Table(
                        metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
                        metrics['Net Revenue ($)']],
                fill_color='darkslategray',
-               font=dict(color='white'),
+               font=dict(color=['white'] * len(metrics.columns)),
                align='left'))
 ])
+
+# Update table layout
+table.update_layout(
+    margin=dict(l=0, r=0, t=0, b=0),
+    font_family="Arial",
+    font_size=12,
+)
+
+# Set column widths
+column_widths = [150, 150, 80, 180, 180, 180]
+table.update_layout(
+    autosize=False,
+    width=sum(column_widths) + 20,  # Add some padding
+    height=350,  # Adjust as needed
+    # Set individual column widths
+    columnwidth=column_widths
+)
 
 # Display the table
 st.plotly_chart(table)
