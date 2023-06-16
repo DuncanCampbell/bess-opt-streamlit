@@ -182,8 +182,6 @@ if st.button('Run Optimization'):
     # Join them back together
     metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
 
-   import plotly.graph_objects as go
-
     # Generate table
     table = go.Figure(data=[go.Table(
         header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)',
