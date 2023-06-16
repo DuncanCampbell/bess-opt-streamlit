@@ -205,11 +205,8 @@ if st.button('Run Optimization'):
     )
 
     # Set column widths
-    column_widths = [150, 150, 80, 180, 180, 180]
     table.update_layout(
-        autosize=False,
-        width=sum(column_widths) + 20,  # Add some padding
-        height=350,  # Adjust as needed
+        autosize=True,
         template="plotly_white",
         # Set individual column widths
         grid=dict(
