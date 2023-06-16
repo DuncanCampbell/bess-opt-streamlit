@@ -85,11 +85,6 @@ def optimization_model(num_hours, da_prices):
 
 # Button to run the optimization
 if st.button('Run Optimization'):
-    # Run the optimization model
-    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
-
-# Button to run the optimization
-if st.button('Run Optimization'):
     # Solve the problem
     prob.solve()
 
@@ -159,28 +154,6 @@ if st.button('Run Optimization'):
         'Net Revenue ($)': 'Net Revenue ($)',
         'Cycles': 'Cycles'
     })
-
-    # Prepare the values in pandas before passing to Plotly
-    metrics_no_total = metrics.iloc[:-1].copy() # Exclude the 'Total' row temporarily
-    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M')
-    metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
-    metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
-    metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(lambda x: f"${x:,.0f}")
-    metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
-    metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
-
-    # Handle the 'Total' row separately
-    total_row = metrics.iloc[-1].copy()
-    total_row.name = 'Total'
-    total_row['Start Date'] = ''
-    total_row['End Date'] = ''
-    total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
-    total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
-    total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
-    total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
-
-    # Join them back together
-    metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
 
     # Generate table
     table = go.Figure(data=[go.Table(
