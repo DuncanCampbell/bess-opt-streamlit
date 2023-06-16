@@ -75,7 +75,7 @@ def optimization_model(num_hours, da_prices):
             prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
     # Cycle limit constraints
-    prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+    prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity/charge_efficiency
 
     # Solve the problem
     prob.solve()
