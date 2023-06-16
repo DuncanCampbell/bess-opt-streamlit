@@ -86,7 +86,7 @@ def optimization_model(num_hours, da_prices):
 # Button to run the optimization
 if st.button('Run Optimization'):
     # Run the optimization model
-prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
+    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
 # Button to run the optimization
 if st.button('Run Optimization'):
