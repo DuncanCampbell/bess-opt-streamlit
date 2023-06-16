@@ -6,7 +6,19 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
-st.title("Battery Scheduling App")
+st.title("Battery Dispatch Optimizer")
+
+# Define Pricing Info
+
+col1, col2 = st.columns(2)
+
+pricing_nodes = ["TH_ZP26_GEN-APND", "TH_SP15_GEN-APND", "TH_NP15_GEN-APND", "DLAP_VEA-APND", "DLAP_SDGE-APND", "DLAP_SCE-APND", "DLAP_PGE-APND"]
+pricing_node = st.selectbox("Pricing Node", options=pricing_nodes, index=2, key="pricing_node")
+
+with col1:
+    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
+with col2:
+    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
 # Define Battery Parameters
 
@@ -18,7 +30,6 @@ with col1:
     discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=100.0, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
     SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=200.0, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
     daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
-    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
 
 with col2:
     discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
@@ -26,10 +37,6 @@ with col2:
     SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=200.0, value=100.0, step=1.0, format="%.1f", key="SOC_max")
     SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=100.0, value=0.0, step=1.0, format="%.1f", key="SOC_min")
     annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=1000.0, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
-    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
-
-pricing_nodes = ["TH_ZP26_GEN-APND", "TH_SP15_GEN-APND", "TH_NP15_GEN-APND", "DLAP_VEA-APND", "DLAP_SDGE-APND", "DLAP_SCE-APND", "DLAP_PGE-APND"]
-pricing_node = st.selectbox("Pricing Node", options=pricing_nodes, index=2, key="pricing_node")
 
 # Button to run the optimization
 if st.button('Run Optimization'):
