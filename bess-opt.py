@@ -17,14 +17,14 @@ with col1:
     energy_capacity = st.number_input("Energy capacity (MWh)", value=100.0, step=1.0, format="%.1f", key="energy_capacity")
     charge_power_limit = st.number_input("Charge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
     discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
-    charge_efficiency = st.number_input("Charge efficiency", value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
     SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_initial")
+    daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
 
 with col2:
     discharge_efficiency = st.number_input("Discharge efficiency", value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
+    charge_efficiency = st.number_input("Charge efficiency", value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
     SOC_max = st.number_input("Max SOC (MWh)", value=100.0, step=1.0, format="%.1f", key="SOC_max")
     SOC_min = st.number_input("Min SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_min")
-    daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
     annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
 
 pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND", key="pricing_node") 
