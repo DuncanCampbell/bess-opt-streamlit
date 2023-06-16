@@ -213,8 +213,10 @@ if st.button('Run Optimization'):
         template="plotly_white",
         # Set individual column widths
         grid=dict(
+            rows=1,  # Specify the number of rows
             columns=len(column_widths),
             pattern="independent",
+            roworder="top to bottom",  # Specify the row order
             widths=column_widths,
         )
     )
