@@ -186,6 +186,9 @@ if st.button('Run Optimization'):
     metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
                                    'Charging Costs ($)', 'Net Revenue ($)'])
 
+    # Remove duplicate column
+    metrics = metrics.iloc[:, 1:]
+
     # Display the table
     st.table(metrics)
     
