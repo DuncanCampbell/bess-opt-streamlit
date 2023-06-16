@@ -86,19 +86,14 @@ def optimization_model(num_hours, da_prices):
 # Button to run the optimization
 if st.button('Run Optimization'):
     # Run the optimization model
-    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
+prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-    # Write the status of the problem solution
-    st.write("Schedule Status: {}".format(LpStatus[prob.status]))
-
-    # Prepare data for results table
+# Prepare data for results table
 results = []
 for t in range(num_hours):
     results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
 results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
-results_df['Time'] = pd.to_datetime(results_df['Time'])  # Convert Time column to datetime
-results_df.set_index('Time', inplace=True)  # Set Time column as the index
 
 # Calculate hourly metrics
 results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * da_prices_df['lmp'] * discharge_efficiency
@@ -107,11 +102,13 @@ results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_
 results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
 
 # Aggregate data daily, weekly, monthly, and yearly
-daily_metrics = results_df.resample('D').sum()
-weekly_metrics = results_df.resample('W').sum()
-weekly_metrics.index = weekly_metrics.index - pd.offsets.Day(6)
-monthly_metrics = results_df.resample('MS').sum()
-yearly_metrics = results_df.resample('Y').sum()
+cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
+
+daily_metrics = results_df.set_index('Time')[cols_to_keep].resample('D').sum()
+weekly_metrics = results_df.set_index('Time')[cols_to_keep].resample('W').sum()
+weekly_metrics.index = weekly_metrics.index - pd.DateOffset(days=6)
+monthly_metrics = results_df.set_index('Time')[cols_to_keep].resample('MS').sum()
+yearly_metrics = results_df.set_index('Time')[cols_to_keep].resample('Y').sum()
 yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
 
 # Add start and end dates for each period
@@ -146,14 +143,6 @@ totals.name = 'Total'
 
 # Append totals to the end of the dataframe
 metrics = pd.concat([metrics, pd.DataFrame(totals).T])
-
-# Rename columns for the final table
-metrics = metrics.rename(columns={
-    'Discharging Revenue ($)': 'Discharging Revenue ($)',
-    'Charging Costs ($)': 'Charging Costs ($)',
-    'Net Revenue ($)': 'Net Revenue ($)',
-    'Cycles': 'Cycles'
-})
 
 # Prepare the values in pandas before passing to Plotly
 metrics_no_total = metrics.iloc[:-1].copy() # Exclude the 'Total' row temporarily
