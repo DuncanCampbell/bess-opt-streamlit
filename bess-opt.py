@@ -49,55 +49,63 @@ num_hours = len(da_prices)
 num_days = num_hours / 24
 total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
-# Variables
-charge_vars = LpVariable.dicts("Charging", range(num_hours), lowBound=0, upBound=charge_power_limit)
-discharge_vars = LpVariable.dicts("Discharging", range(num_hours), lowBound=0, upBound=discharge_power_limit)
-SOC_vars = LpVariable.dicts("SOC", range(num_hours+1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
+# Create a function to define the optimization model
+def optimization_model(num_hours, da_prices):
+    # Variables
+    charge_vars = LpVariable.dicts("Charging", range(num_hours), lowBound=0, upBound=charge_power_limit)
+    discharge_vars = LpVariable.dicts("Discharging", range(num_hours), lowBound=0, upBound=discharge_power_limit)
+    SOC_vars = LpVariable.dicts("SOC", range(num_hours+1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
 
-# Problem
-prob = LpProblem("Battery Scheduling", LpMaximize)
+    # Problem
+    prob = LpProblem("Battery Scheduling", LpMaximize)
 
-# Objective function
-prob += lpSum([da_prices[t]*discharge_efficiency*discharge_vars[t] - da_prices[t]*charge_vars[t]/charge_efficiency for t in range(num_hours)])
+    # Objective function
+    prob += lpSum([da_prices[t]*discharge_efficiency*discharge_vars[t] - da_prices[t]*charge_vars[t]/charge_efficiency for t in range(num_hours)])
 
-# Constraints
-# Initial SOC constraint
-prob += SOC_vars[0] == SOC_initial
+    # Constraints
+    # Initial SOC constraint
+    prob += SOC_vars[0] == SOC_initial
 
-# SOC update constraints
-for t in range(num_hours):
-    if t == 0:
-        prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
-    else:
-        prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]/discharge_efficiency
+    # SOC update constraints
+    for t in range(num_hours):
+        if t == 0:
+            prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
+        else:
+            prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]/discharge_efficiency
 
-# Cycle limit constraints
-prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+    # Cycle limit constraints
+    prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
 
-# Solve the problem
-prob.solve()
+    # Solve the problem
+    prob.solve()
 
-st.write("Schedule Status: {}".format(LpStatus[prob.status]))
+    return prob, charge_vars, discharge_vars, SOC_vars
 
-# Prepare data for results table
-results = []
-for t in range(num_hours):
-    results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
+# Check if the button is clicked to execute the optimization model
+if st.button('Run Optimization Model'):
+    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
-st.dataframe(results_df)
+    st.write("Schedule Status: {}".format(LpStatus[prob.status]))
 
-# Prepare data for the plots
-charging = [x.varValue for x in charge_vars.values()]
-discharging = [x.varValue for x in discharge_vars.values()]
-SOC = [x.varValue for x in SOC_vars.values()[:-1]]  # Exclude last SOC
+    # Prepare data for results table
+    results = []
+    for t in range(num_hours):
+        results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
-# Create subplots: Charging, Discharging, SOC, and Prices
-fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
+    results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+    st.dataframe(results_df)
 
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=charging, mode='lines', name='Charging'), row=1, col=1)
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=discharging, mode='lines', name='Discharging'), row=2, col=1)
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=3, col=1)
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=4, col=1)
+    # Prepare data for the plots
+    charging = [x.varValue for x in charge_vars.values()]
+    discharging = [x.varValue for x in discharge_vars.values()]
+    SOC = [x.varValue for x in SOC_vars.values()[:-1]]  # Exclude last SOC
 
-st.plotly_chart(fig)
+    # Create subplots: Charging, Discharging, SOC, and Prices
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
+
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=charging, mode='lines', name='Charging'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=discharging, mode='lines', name='Discharging'), row=2, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=3, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=4, col=1)
+
+    st.plotly_chart(fig)
