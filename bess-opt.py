@@ -50,8 +50,8 @@ if st.button('Run Optimization'):
     rain(
         emoji="🔋",
         font_size=54,
-        falling_speed=7,
-        animation_length=5,
+        falling_speed=10,
+        animation_length=1,
     )
     
     # Get data from gridstatus.io
