@@ -10,6 +10,8 @@ st.title("Battery Dispatch Optimizer")
 
 # Define Pricing Info
 
+st.header("Energy Market Inputs")
+
 col1, col2 = st.columns(2)
 
 pricing_nodes = ["TH_ZP26_GEN-APND", "TH_SP15_GEN-APND", "TH_NP15_GEN-APND", "DLAP_VEA-APND", "DLAP_SDGE-APND", "DLAP_SCE-APND", "DLAP_PGE-APND"]
@@ -21,6 +23,8 @@ with col2:
     end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
 # Define Battery Parameters
+
+st.header("Battery Parameters")
 
 col1, col2 = st.columns(2)
 
