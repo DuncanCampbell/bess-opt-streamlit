@@ -208,6 +208,9 @@ if st.button('Run Optimization'):
     # Reset the index of metrics DataFrame
     metrics.reset_index(drop=True, inplace=True)
 
+    # Convert 'Cycles' column to numeric
+    metrics['Cycles'] = pd.to_numeric(metrics['Cycles'], errors='coerce')
+
     # Calculate total metrics
     total_discharging_revenue = metrics['Discharging Revenue ($)'].sum()
     total_charging_costs = metrics['Charging Costs ($)'].sum()
@@ -226,7 +229,7 @@ if st.button('Run Optimization'):
     st.subheader("Average Metrics")
     col5, col6 = st.columns(2)
     col5.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
-    
+
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
     st.table(metrics)
