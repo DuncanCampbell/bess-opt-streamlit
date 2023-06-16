@@ -88,117 +88,138 @@ if st.button('Run Optimization'):
     # Run the optimization model
 prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-# Prepare data for results table
-results = []
-for t in range(num_hours):
-    results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
+# Button to run the optimization
+if st.button('Run Optimization'):
+    # Solve the problem
+    prob.solve()
 
-results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+    # Write the status of the problem solution
+    st.write("Schedule Status: {}".format(LpStatus[prob.status]))
 
-# Calculate hourly metrics
-results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * da_prices_df['lmp'] * discharge_efficiency
-results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * da_prices_df['lmp'] / charge_efficiency
-results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
-results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
+    # Prepare data for results table
+    results = []
+    for t in range(num_hours):
+        results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
-# Aggregate data daily, weekly, monthly, and yearly
-cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
+    results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
 
-daily_metrics = results_df.set_index('Time')[cols_to_keep].resample('D').sum()
-weekly_metrics = results_df.set_index('Time')[cols_to_keep].resample('W').sum()
-weekly_metrics.index = weekly_metrics.index - pd.DateOffset(days=6)
-monthly_metrics = results_df.set_index('Time')[cols_to_keep].resample('MS').sum()
-yearly_metrics = results_df.set_index('Time')[cols_to_keep].resample('Y').sum()
-yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
+    # Calculate hourly metrics
+    results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * da_prices_df['lmp'] * discharge_efficiency
+    results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * da_prices_df['lmp'] / charge_efficiency
+    results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
+    results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
 
-# Add start and end dates for each period
-daily_metrics['End Date'] = (daily_metrics.index + pd.DateOffset(days=1)) - pd.Timedelta(1, unit='s')
-weekly_metrics['End Date'] = (weekly_metrics.index + pd.DateOffset(weeks=1)) - pd.Timedelta(1, unit='s')
-monthly_metrics['End Date'] = (monthly_metrics.index + pd.offsets.MonthBegin(1)) - pd.Timedelta(1, unit='D')
-yearly_metrics['End Date'] = (yearly_metrics.index + pd.DateOffset(years=1)) - pd.Timedelta(1, unit='s')
+    # Aggregate data daily, weekly, monthly, and yearly
+    cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
 
-# Add start and end dates for each period
-daily_metrics['Start Date'] = daily_metrics.index
-weekly_metrics['Start Date'] = weekly_metrics.index
-monthly_metrics['Start Date'] = monthly_metrics.index
-yearly_metrics['Start Date'] = yearly_metrics.index
+    daily_metrics = results_df.set_index('Time')[cols_to_keep].resample('D').sum()
+    weekly_metrics = results_df.set_index('Time')[cols_to_keep].resample('W').sum()
+    weekly_metrics.index = weekly_metrics.index - pd.DateOffset(days=6)
+    monthly_metrics = results_df.set_index('Time')[cols_to_keep].resample('MS').sum()
+    yearly_metrics = results_df.set_index('Time')[cols_to_keep].resample('Y').sum()
+    yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
 
-# Determine table metrics based on number of days of analysis
-if num_days <= 31:
-    # Daily metrics
-    metrics = daily_metrics
-elif num_days <= 93:
-    # Weekly metrics
-    metrics = weekly_metrics
-elif num_days <= 730:
-    # Monthly metrics
-    metrics = monthly_metrics
-else:
-    # Yearly metrics
-    metrics = yearly_metrics
+    # Add start and end dates for each period
+    daily_metrics['End Date'] = (daily_metrics.index + pd.DateOffset(days=1)) - pd.Timedelta(1, unit='s')
+    weekly_metrics['End Date'] = (weekly_metrics.index + pd.DateOffset(weeks=1)) - pd.Timedelta(1, unit='s')
+    monthly_metrics['End Date'] = (monthly_metrics.index + pd.offsets.MonthBegin(1)) - pd.Timedelta(1, unit='D')
+    yearly_metrics['End Date'] = (yearly_metrics.index + pd.DateOffset(years=1)) - pd.Timedelta(1, unit='s')
 
-# Calculate the total for each column
-totals = metrics.sum(numeric_only=True)
-totals.name = 'Total'
+    # Add start and end dates for each period
+    daily_metrics['Start Date'] = daily_metrics.index
+    weekly_metrics['Start Date'] = weekly_metrics.index
+    monthly_metrics['Start Date'] = monthly_metrics.index
+    yearly_metrics['Start Date'] = yearly_metrics.index
 
-# Append totals to the end of the dataframe
-metrics = pd.concat([metrics, pd.DataFrame(totals).T])
+    # Determine table metrics based on number of days of analysis
+    if num_days <= 31:
+        # Daily metrics
+        metrics = daily_metrics
+    elif num_days <= 93:
+        # Weekly metrics
+        metrics = weekly_metrics
+    elif num_days <= 730:
+        # Monthly metrics
+        metrics = monthly_metrics
+    else:
+        # Yearly metrics
+        metrics = yearly_metrics
 
-# Prepare the values in pandas before passing to Plotly
-metrics_no_total = metrics.iloc[:-1].copy() # Exclude the 'Total' row temporarily
-metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M')
-metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
-metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
-metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(lambda x: f"${x:,.0f}")
-metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
-metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+    # Calculate the total for each column
+    totals = metrics.sum(numeric_only=True)
+    totals.name = 'Total'
 
-# Handle the 'Total' row separately
-total_row = metrics.iloc[-1].copy()
-total_row.name = 'Total'
-total_row['Start Date'] = ''
-total_row['End Date'] = ''
-total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
-total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
-total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
-total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
+    # Append totals to the end of the dataframe
+    metrics = pd.concat([metrics, pd.DataFrame(totals).T])
 
-# Join them back together
-metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
+    # Rename columns for the final table
+    metrics = metrics.rename(columns={
+        'Discharging Revenue ($)': 'Discharging Revenue ($)',
+        'Charging Costs ($)': 'Charging Costs ($)',
+        'Net Revenue ($)': 'Net Revenue ($)',
+        'Cycles': 'Cycles'
+    })
 
-# Generate table
-table = go.Figure(data=[go.Table(
-    header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)'],
-                fill_color='black',
-                font=dict(color='white'),
-                align='left'),
-    cells=dict(values=[metrics.index, metrics['End Date'], metrics['Cycles'],
-                       metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
-                       metrics['Net Revenue ($)']],
-               fill_color='darkslategray',
-               font=dict(color=['white'] * len(metrics.columns)),
-               align='left'))
-])
+    # Prepare the values in pandas before passing to Plotly
+    metrics_no_total = metrics.iloc[:-1].copy() # Exclude the 'Total' row temporarily
+    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M')
+    metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
+    metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
+    metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+    metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
+    metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
 
-# Update table layout
-table.update_layout(
-    margin=dict(l=0, r=0, t=0, b=0),
-    font_family="Arial",
-    font_size=12,
-)
+    # Handle the 'Total' row separately
+    total_row = metrics.iloc[-1].copy()
+    total_row.name = 'Total'
+    total_row['Start Date'] = ''
+    total_row['End Date'] = ''
+    total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
+    total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
+    total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
+    total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
 
-# Set column widths
-column_widths = [150, 150, 80, 180, 180, 180]
-table.update_layout(
-    autosize=False,
-    width=sum(column_widths) + 20,  # Add some padding
-    height=350,  # Adjust as needed
-    # Set individual column widths
-    columnwidth=column_widths
-)
+    # Join them back together
+    metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
 
-# Display the table
-st.plotly_chart(table)
+    # Generate table
+    table = go.Figure(data=[go.Table(
+        header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)'],
+                    fill_color='black',
+                    font=dict(color='white'),
+                    align='left'),
+        cells=dict(values=[metrics.index, metrics['End Date'], metrics['Cycles'],
+                           metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
+                           metrics['Net Revenue ($)']],
+                   fill_color='darkslategray',
+                   font=dict(color=['white'] * len(metrics.columns)),
+                   align='left'))
+    ])
+
+    # Update table layout
+    table.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        font_family="Arial",
+        font_size=12,
+    )
+
+    # Set column widths
+    column_widths = [150, 150, 80, 180, 180, 180]
+    table.update_layout(
+        autosize=False,
+        width=sum(column_widths) + 20,  # Add some padding
+        height=350,  # Adjust as needed
+        template="plotly_white",
+        # Set individual column widths
+        grid=dict(
+            columns=len(column_widths),
+            pattern="independent",
+            widths=column_widths,
+        )
+    )
+
+    # Display the table
+    st.plotly_chart(table)
 
 # Prepare data for the plots
 SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
