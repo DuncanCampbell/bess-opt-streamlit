@@ -208,3 +208,12 @@ if st.button('Run Optimization'):
 
     # Display the table
     st.plotly_chart(table)
+
+  # Prepare data for results table
+    results = []
+    for t in range(num_hours):
+        results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
+
+    results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+    st.dataframe(results_df)
+
