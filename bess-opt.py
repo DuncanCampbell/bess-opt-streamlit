@@ -85,6 +85,9 @@ def optimization_model(num_hours, da_prices):
 
 # Button to run the optimization
 if st.button('Run Optimization'):
+    # Run the optimization model
+    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
+
     # Solve the problem
     prob.solve()
 
@@ -155,9 +158,34 @@ if st.button('Run Optimization'):
         'Cycles': 'Cycles'
     })
 
+    # Prepare the values in pandas before passing to Plotly
+    metrics_no_total = metrics.iloc[:-1].copy()  # Exclude the 'Total' row temporarily
+    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M')
+    metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(
+        lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
+    metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
+    metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(
+        lambda x: f"${x:,.0f}")
+    metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
+    metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+
+    # Handle the 'Total' row separately
+    total_row = metrics.iloc[-1].copy()
+    total_row.name = 'Total'
+    total_row['Start Date'] = ''
+    total_row['End Date'] = ''
+    total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
+    total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
+    total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
+    total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
+
+    # Join them back together
+    metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
+
     # Generate table
     table = go.Figure(data=[go.Table(
-        header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)'],
+        header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)',
+                             'Net Revenue ($)'],
                     fill_color='black',
                     font=dict(color='white'),
                     align='left'),
@@ -194,13 +222,14 @@ if st.button('Run Optimization'):
     # Display the table
     st.plotly_chart(table)
 
-# Prepare data for the plots
-SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
+    # Prepare data for the plots
+    SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
 
-# Create subplots: SOC and Prices
-fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("State of Charge", "Day Ahead Prices"))
+    # Create subplots: SOC and Prices
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("State of Charge", "Day Ahead Prices"))
 
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=1, col=1)
-fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=2, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'),
+                  row=2, col=1)
 
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
