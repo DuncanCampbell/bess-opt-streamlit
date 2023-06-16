@@ -113,9 +113,6 @@ if st.button('Run Optimization'):
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-    # Write the status of the problem solution
-    st.write("Schedule Status: {}".format(LpStatus[prob.status]))
-
     # Prepare data for results table
     results = []
     for t in range(num_hours):
@@ -211,6 +208,13 @@ if st.button('Run Optimization'):
     # Reset the index of metrics DataFrame
     metrics.reset_index(drop=True, inplace=True)
 
-    # Display the metrics DataFrame as a table
+    # Display key metrics
     st.header("Dispatch Summary")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Discharging Revenue", f"${total_row['Charging Revenue ($)']:,.0f}")
+    col2.metric("Charging Revenue", f"${total_row['Discharging Revenue ($)']:,.0f})
+    col3.metric("Net Revenue", f"${total_row['Net Revenue ($)']:,.0f}")
+    
+    # Display the metrics DataFrame as a table
+    st.header("Dispatch Breakdown")
     st.table(metrics)
