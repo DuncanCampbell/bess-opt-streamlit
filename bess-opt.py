@@ -212,4 +212,5 @@ if st.button('Run Optimization'):
     metrics.reset_index(drop=True, inplace=True)
 
     # Display the metrics DataFrame as a table
+    st.header("Dispatch Summary")
     st.table(metrics)
