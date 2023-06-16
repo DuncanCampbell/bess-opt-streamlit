@@ -236,6 +236,7 @@ if st.button('Run Optimization'):
     col4.metric("Total Cycles", f"{total_cycles:.1f}")
     col5.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
 
+
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
     st.table(metrics)
