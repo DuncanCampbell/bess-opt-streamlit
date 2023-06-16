@@ -74,8 +74,11 @@ def optimization_model(num_hours, da_prices):
             prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]
             prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
-    # Cycle limit constraints
+   # Cycle limit constraints
     prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+
+    # Button to run the optimization
+    if st.button('Run Optimization'):
 
     # Write the problem formulation for debugging
     st.write("Problem formulation:")
@@ -94,7 +97,6 @@ def optimization_model(num_hours, da_prices):
 
     results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
     st.dataframe(results_df)
-
 
     # Prepare data for the plots
     SOC = [x.varValue for x in list(SOC_vars.values())[:-1]]  # Exclude last SOC
