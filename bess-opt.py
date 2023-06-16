@@ -208,19 +208,16 @@ if st.button('Run Optimization'):
     # Reset the index of metrics DataFrame
     metrics.reset_index(drop=True, inplace=True)
 
-    # Convert 'Cycles' column to numeric
-    metrics['Cycles'] = pd.to_numeric(metrics['Cycles'], errors='coerce')
-
     # Calculate total metrics
-    total_discharging_revenue = metrics.loc['Total', 'Discharging Revenue ($)']
-    total_charging_costs = metrics.loc['Total', 'Charging Costs ($)']
-    total_net_revenue = metrics.loc['Total', 'Net Revenue ($)']
+    total_discharging_revenue = metrics.loc[metrics['Start Date'] == '', 'Discharging Revenue ($)'].values[0]
+    total_charging_costs = metrics.loc[metrics['Start Date'] == '', 'Charging Costs ($)'].values[0]
+    total_net_revenue = metrics.loc[metrics['Start Date'] == '', 'Net Revenue ($)'].values[0]
     
     # Calculate total cycles
-    total_cycles = metrics.loc['Total', 'Cycles']
+    total_cycles = metrics.loc[metrics['Start Date'] == '', 'Cycles'].values[0]
     
     # Calculate average net revenue per cycle
-    if pd.notnull(total_cycles) and total_cycles != 0:
+    if total_cycles != 0:
         average_net_revenue_per_cycle = total_net_revenue / total_cycles
     else:
         average_net_revenue_per_cycle = 0
