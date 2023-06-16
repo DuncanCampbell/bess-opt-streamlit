@@ -187,7 +187,7 @@ if st.button('Run Optimization'):
                                    'Charging Costs ($)', 'Net Revenue ($)'])
 
     # Remove duplicate column
-    metrics = metrics.iloc[:, 1:]
+    metrics = metrics.iloc[:, 0:]
 
     # Display the table
     st.table(metrics)
