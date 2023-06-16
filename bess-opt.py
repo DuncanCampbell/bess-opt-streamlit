@@ -71,14 +71,22 @@ def optimization_model(num_hours, da_prices):
         if t == 0:
             prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
         else:
-            prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]
+            prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]/discharge_efficiency
             prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
-  # Cycle limit constraints
-prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+    # Cycle limit constraints
+    prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+
+    return prob, charge_vars, discharge_vars, SOC_vars
+
+# Define the optimization model and get variables
+prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
 # Button to run the optimization
-if st.button('Run Optimization'):
+with st.form(key='my_form'):
+    submit_button = st.form_submit_button(label='Run Optimization')
+
+if submit_button:
 
     # Write the problem formulation for debugging
     st.write("Problem formulation:")
@@ -99,6 +107,8 @@ if st.button('Run Optimization'):
     st.dataframe(results_df)
 
     # Prepare data for the plots
+    charging = [x.varValue for x in list(charge_vars.values())]
+    discharging = [x.varValue for x in list(discharge_vars.values())]
     SOC = [x.varValue for x in list(SOC_vars.values())[:-1]]  # Exclude last SOC
 
     # Create subplots: SOC and Prices
