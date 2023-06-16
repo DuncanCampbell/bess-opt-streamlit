@@ -49,44 +49,48 @@ num_hours = len(da_prices)
 num_days = num_hours / 24
 total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
-# Variables
-charge_vars = LpVariable.dicts("Charging", range(num_hours), lowBound=0, upBound=charge_power_limit)
-discharge_vars = LpVariable.dicts("Discharging", range(num_hours), lowBound=0, upBound=discharge_power_limit)
-SOC_vars = LpVariable.dicts("SOC", range(num_hours+1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
+# Create a function to define the optimization model
+def optimization_model(num_hours, da_prices):
+    # Variables
+    charge_vars = LpVariable.dicts("Charging", range(num_hours), lowBound=0, upBound=charge_power_limit)
+    discharge_vars = LpVariable.dicts("Discharging", range(num_hours), lowBound=0, upBound=discharge_power_limit)
+    SOC_vars = LpVariable.dicts("SOC", range(num_hours+1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
 
-# Problem
-prob = LpProblem("Battery Scheduling", LpMaximize)
+    # Problem
+    prob = LpProblem("Battery Scheduling", LpMaximize)
 
-# Objective function
-prob += lpSum([da_prices[t]*discharge_efficiency*discharge_vars[t] - da_prices[t]*charge_vars[t]/charge_efficiency for t in range(num_hours)])
+    # Objective function
+    prob += lpSum([da_prices[t]*discharge_efficiency*discharge_vars[t] - da_prices[t]*charge_vars[t]/charge_efficiency for t in range(num_hours)])
 
-# Constraints
-# Initial SOC constraint
-prob += SOC_vars[0] == SOC_initial
+    # Constraints
+    # Initial SOC constraint
+    prob += SOC_vars[0] == SOC_initial
 
-# SOC update constraints
-for t in range(num_hours):
-    if t == 0:
-        prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
-    else:
-        prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]*discharge_efficiency
-        prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
+    # SOC update constraints
+    for t in range(num_hours):
+        if t == 0:
+            prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
+        else:
+            prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]
+            prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
-# Cycle limit constraints
-prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+    # Cycle limit constraints
+    prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
+
+    # Solve the problem
+    prob.solve()
+
+    # Return the optimization model and variables
+    return prob, charge_vars, discharge_vars, SOC_vars
 
 # Button to run the optimization
-with st.form(key='my_form'):
-    submit_button = st.form_submit_button(label='Run Optimization')
-
-if submit_button:
+if st.button('Run Optimization'):
+    # Run the optimization model
+    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
     # Write the problem formulation for debugging
     st.write("Problem formulation:")
     st.text(str(prob))
-
-    # Solve the problem
-    prob.solve()
 
     # Write the status of the problem solution
     st.write("Schedule Status: {}".format(LpStatus[prob.status]))
@@ -100,9 +104,9 @@ if submit_button:
     st.dataframe(results_df)
 
     # Prepare data for the plots
-    charging = [x.varValue for x in list(charge_vars.values())]
-    discharging = [x.varValue for x in list(discharge_vars.values())]
-    SOC = [x.varValue for x in list(SOC_vars.values())[:-1]]  # Exclude last SOC
+    charging = [charge_vars[t].varValue for t in range(num_hours)]
+    discharging = [discharge_vars[t].varValue for t in range(num_hours)]
+    SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
 
     # Create subplots: SOC and Prices
     fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
