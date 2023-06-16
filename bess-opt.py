@@ -205,3 +205,6 @@ if st.button('Run Optimization'):
         autosize=True,
         template="plotly_white"
     )
+
+    # Display the table
+    st.plotly_chart(table)
