@@ -104,16 +104,12 @@ if st.button('Run Optimization'):
     st.dataframe(results_df)
 
     # Prepare data for the plots
-    charging = [charge_vars[t].varValue for t in range(num_hours)]
-    discharging = [discharge_vars[t].varValue for t in range(num_hours)]
     SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
 
     # Create subplots: SOC and Prices
-    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("State of Charge", "Day Ahead Prices"))
 
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=charging, mode='lines', name='Charging'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=discharging, mode='lines', name='Discharging'), row=2, col=1)
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=3, col=1)
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=4, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=2, col=1)
 
     st.plotly_chart(fig)
