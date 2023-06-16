@@ -20,6 +20,9 @@ SOC_min = st.number_input("Min SOC (MWh)", value=0.0)
 daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0)
 annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0)
 SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0)
+pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND") 
+start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
+end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
 
 # Button to run the optimization
 if st.button('Run Optimization'):
@@ -28,10 +31,6 @@ if st.button('Run Optimization'):
 
     API_Key = st.text_input("API Key", value="ebb576413c2308080c81d9ded9ae8c86")
     client = GridStatusClient(API_Key)
-
-    pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND") 
-    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
-    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
 
     grid_status_data = client.get_dataset(
         dataset="caiso_lmp_day_ahead_hourly",
