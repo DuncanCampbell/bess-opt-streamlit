@@ -182,39 +182,7 @@ if st.button('Run Optimization'):
     # Join them back together
     metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
 
-    # Generate table
-    table = go.Figure(data=[go.Table(
-        header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)',
-                             'Net Revenue ($)'],
-                    fill_color='black',
-                    font=dict(color='white'),
-                    align='left'),
-        cells=dict(values=[metrics.index, metrics['End Date'], metrics['Cycles'],
-                           metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
-                           metrics['Net Revenue ($)']],
-                   fill_color='darkslategray',
-                   font=dict(color=['white'] * len(metrics.columns)),
-                   align='left'))
-    ])
-
-    # Update table layout
-    table.update_layout(
-        margin=dict(l=0, r=0, t=0, b=0),
-        font_family="Arial",
-        font_size=12,
-        autosize=True,
-        template="plotly_white"
-    )
-
     # Display the table
-    st.plotly_chart(table)
+    st.table(metrics)
+    
 
-    # Prepare data for results table
-    results = []
-    for t in range(num_hours):
-        results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
-
-    results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
-
-    # Display the table
-    st.table(results_df)
