@@ -10,23 +10,22 @@ st.title("Battery Scheduling App")
 
 # Define Battery Parameters
 
-
 col1, col2 = st.columns(2)
 
 with col1:
-    energy_capacity = st.number_input("Energy capacity (MWh)", value=100.0, step=1.0, format="%.1f", key="energy_capacity")
-    charge_power_limit = st.number_input("Charge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
-    discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
-    SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_initial")
-    daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
+    energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
+    charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=100.0, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
+    discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=100.0, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
+    SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=200.0, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
+    daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
     start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
 
 with col2:
-    discharge_efficiency = st.number_input("Discharge efficiency", value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
-    charge_efficiency = st.number_input("Charge efficiency", value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
-    SOC_max = st.number_input("Max SOC (MWh)", value=100.0, step=1.0, format="%.1f", key="SOC_max")
-    SOC_min = st.number_input("Min SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_min")
-    annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
+    discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
+    charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
+    SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=200.0, value=100.0, step=1.0, format="%.1f", key="SOC_max")
+    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=100.0, value=0.0, step=1.0, format="%.1f", key="SOC_min")
+    annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=1000.0, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
     end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
 pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND", key="pricing_node") 
