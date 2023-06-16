@@ -99,9 +99,10 @@ if st.button('Run Optimization Model'):
     st.dataframe(results_df)
 
     # Prepare data for the plots
-    charging = [x.varValue for x in charge_vars.values()]
-    discharging = [x.varValue for x in discharge_vars.values()]
-    SOC = [x.varValue for x in SOC_vars.values()[:-1]]  # Exclude last SOC
+    charging = [x.varValue for x in list(charge_vars.values())]
+    discharging = [x.varValue for x in list(discharge_vars.values())]
+    SOC = [x.varValue for x in list(SOC_vars.values())[:-1]]  # Exclude last SOC
+
 
     # Create subplots: Charging, Discharging, SOC, and Prices
     fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
