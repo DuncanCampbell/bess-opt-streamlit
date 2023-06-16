@@ -77,17 +77,14 @@ def optimization_model(num_hours, da_prices):
     # Cycle limit constraints
     prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity
 
-    return prob, charge_vars, discharge_vars, SOC_vars
+    # Write the problem formulation for debugging
+    st.write("Problem formulation:")
+    st.text(str(prob))
 
     # Solve the problem
     prob.solve()
 
-    return prob, charge_vars, discharge_vars, SOC_vars
-
-# Check if the button is clicked to execute the optimization model
-if st.button('Run Optimization Model'):
-    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
-
+    # Write the status of the problem solution
     st.write("Schedule Status: {}".format(LpStatus[prob.status]))
 
     # Prepare data for results table
@@ -98,13 +95,11 @@ if st.button('Run Optimization Model'):
     results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
     st.dataframe(results_df)
 
+
     # Prepare data for the plots
-    charging = [x.varValue for x in list(charge_vars.values())]
-    discharging = [x.varValue for x in list(discharge_vars.values())]
     SOC = [x.varValue for x in list(SOC_vars.values())[:-1]]  # Exclude last SOC
 
-
-    # Create subplots: Charging, Discharging, SOC, and Prices
+    # Create subplots: SOC and Prices
     fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("Charging Power", "Discharging Power", "State of Charge", "Day Ahead Prices"))
 
     fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=charging, mode='lines', name='Charging'), row=1, col=1)
