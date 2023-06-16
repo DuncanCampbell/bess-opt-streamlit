@@ -186,13 +186,10 @@ if st.button('Run Optimization'):
     table = go.Figure(data=[go.Table(
         header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)',
                              'Net Revenue ($)'],
-                    fill_color='black',
-                    font=dict(color='white'),
                     align='left'),
         cells=dict(values=[metrics.index, metrics['End Date'], metrics['Cycles'],
                            metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
                            metrics['Net Revenue ($)']],
-                   fill_color='darkslategray',
                    font=dict(color=['white'] * len(metrics.columns)),
                    align='left'))
     ])
