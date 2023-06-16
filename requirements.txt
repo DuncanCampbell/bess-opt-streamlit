@@ -3,3 +3,4 @@ pulp
 gridstatusio
 pandas
 plotly
+streamlit-extras
