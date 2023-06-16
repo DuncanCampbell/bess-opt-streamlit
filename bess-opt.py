@@ -28,7 +28,8 @@ with col2:
     annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=1000.0, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
     end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
-pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND", key="pricing_node") 
+pricing_nodes = ["TH_ZP26_GEN-APND", "TH_SP15_GEN-APND", "TH_NP15_GEN-APND", "DLAP_VEA-APND", "DLAP_SDGE-APND", "DLAP_SCE-APND", "DLAP_PGE-APND"]
+pricing_node = st.selectbox("Pricing Node", options=pricing_nodes, index=2, key="pricing_node")
 
 # Button to run the optimization
 if st.button('Run Optimization'):
