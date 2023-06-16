@@ -29,7 +29,7 @@ if st.button('Run Optimization'):
 
     # Get data from gridstatus.io
 
-    API_Key = st.text_input("API Key", value="ebb576413c2308080c81d9ded9ae8c86")
+    API_Key = "ebb576413c2308080c81d9ded9ae8c86"
     client = GridStatusClient(API_Key)
 
     grid_status_data = client.get_dataset(
