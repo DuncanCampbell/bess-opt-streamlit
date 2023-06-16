@@ -19,6 +19,7 @@ with col1:
     discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
     SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_initial")
     daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
+    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
 
 with col2:
     discharge_efficiency = st.number_input("Discharge efficiency", value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
@@ -26,10 +27,9 @@ with col2:
     SOC_max = st.number_input("Max SOC (MWh)", value=100.0, step=1.0, format="%.1f", key="SOC_max")
     SOC_min = st.number_input("Min SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_min")
     annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
+    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
 pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND", key="pricing_node") 
-start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
-end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
 # Button to run the optimization
 if st.button('Run Optimization'):
