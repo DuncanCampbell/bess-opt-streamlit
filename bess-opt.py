@@ -21,33 +21,36 @@ daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0)
 annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0)
 SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0)
 
-# Get data from gridstatus.io
+# Button to run the optimization
+if st.button('Run Optimization'):
 
-API_Key = st.text_input("API Key", value="ebb576413c2308080c81d9ded9ae8c86")
-client = GridStatusClient(API_Key)
+    # Get data from gridstatus.io
 
-pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND") 
-start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
-end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
+    API_Key = st.text_input("API Key", value="ebb576413c2308080c81d9ded9ae8c86")
+    client = GridStatusClient(API_Key)
 
-grid_status_data = client.get_dataset(
-    dataset="caiso_lmp_day_ahead_hourly",
-    filter_column="location",
-    filter_value= pricing_node,
-    start = start_date.strftime('%Y-%m-%d'),
-    end = end_date.strftime('%Y-%m-%d'),
-    tz="US/Pacific",  # return time stamps in Pacific time
-)
+    pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND") 
+    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
+    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
 
-# Create dataframe for relevant columns and extract prices as a list from it
+    grid_status_data = client.get_dataset(
+        dataset="caiso_lmp_day_ahead_hourly",
+        filter_column="location",
+        filter_value= pricing_node,
+        start = start_date.strftime('%Y-%m-%d'),
+        end = end_date.strftime('%Y-%m-%d'),
+        tz="US/Pacific",  # return time stamps in Pacific time
+    )
 
-da_prices_df = grid_status_data[["interval_start_local", "lmp"]]
-da_prices = da_prices_df['lmp'].tolist()
+    # Create dataframe for relevant columns and extract prices as a list from it
 
-# Price Forecast for num_hours hours
-num_hours = len(da_prices)
-num_days = num_hours / 24
-total_cycle_limit = (num_days / 365) * annual_cycle_limit
+    da_prices_df = grid_status_data[["interval_start_local", "lmp"]]
+    da_prices = da_prices_df['lmp'].tolist()
+
+    # Price Forecast for num_hours hours
+    num_hours = len(da_prices)
+    num_days = num_hours / 24
+    total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
 # Create a function to define the optimization model
 def optimization_model(num_hours, da_prices):
@@ -82,9 +85,7 @@ def optimization_model(num_hours, da_prices):
 
     # Return the optimization model and variables
     return prob, charge_vars, discharge_vars, SOC_vars
-
-# Button to run the optimization
-if st.button('Run Optimization'):
+    
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
