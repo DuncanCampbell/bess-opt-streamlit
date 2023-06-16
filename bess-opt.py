@@ -69,7 +69,7 @@ for t in range(num_hours):
     if t == 0:
         prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
     else:
-        prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]/discharge_efficiency
+        prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]*discharge_efficiency
         prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
 # Cycle limit constraints
