@@ -208,5 +208,8 @@ if st.button('Run Optimization'):
         template="plotly_white"
     )
 
-    # Display the table
+    # Display another table
     st.plotly_chart(table)
+
+        results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+    st.dataframe(results_df)
