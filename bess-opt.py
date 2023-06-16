@@ -186,8 +186,8 @@ if st.button('Run Optimization'):
     metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
                                    'Charging Costs ($)', 'Net Revenue ($)'])
    
-    # Set the index of metrics DataFrame to None
-    metrics.index = None
+    # Reset the index of metrics DataFrame
+    metrics.reset_index(drop=True, inplace=True)
 
     # Display the metrics DataFrame as a table
     st.table(metrics)
