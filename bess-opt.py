@@ -215,16 +215,16 @@ if st.button('Run Optimization'):
     total_discharging_revenue = metrics['Discharging Revenue ($)'].sum()
     total_charging_costs = metrics['Charging Costs ($)'].sum()
     total_net_revenue = metrics['Net Revenue ($)'].sum()
-
+    
     # Calculate total cycles
-    total_cycles = metrics['Cycles'].sum()
-
+    total_cycles = pd.to_numeric(metrics['Cycles'], errors='coerce').sum()
+    
     # Calculate average net revenue per cycle
-    if total_cycles != 0:
-        average_net_revenue_per_cycle = total_net_revenue / float(total_cycles)
+    if not pd.isna(total_cycles) and total_cycles != 0:
+        average_net_revenue_per_cycle = total_net_revenue / total_cycles
     else:
         average_net_revenue_per_cycle = 0
-
+    
     # Display metrics
     st.header("Metrics")
     st.subheader("Total Metrics")
