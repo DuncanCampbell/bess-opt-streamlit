@@ -221,7 +221,7 @@ if st.button('Run Optimization'):
 
     # Calculate average net revenue per cycle
     if total_cycles != 0:
-        average_net_revenue_per_cycle = total_net_revenue / total_cycles
+        average_net_revenue_per_cycle = total_net_revenue / float(total_cycles)
     else:
         average_net_revenue_per_cycle = 0
 
