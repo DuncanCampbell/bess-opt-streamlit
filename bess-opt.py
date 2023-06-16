@@ -18,6 +18,7 @@ with col1:
     charge_power_limit = st.number_input("Charge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
     discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
     charge_efficiency = st.number_input("Charge efficiency", value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
+    SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_initial")
 
 with col2:
     discharge_efficiency = st.number_input("Discharge efficiency", value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
@@ -26,7 +27,6 @@ with col2:
     daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
     annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
 
-SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0, step=1.0, format="%.1f", key="SOC_initial")
 pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND", key="pricing_node") 
 start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
 end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
