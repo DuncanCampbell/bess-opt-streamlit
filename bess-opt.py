@@ -88,10 +88,6 @@ if st.button('Run Optimization'):
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-    # Write the problem formulation for debugging
-    st.write("Problem formulation:")
-    st.text(str(prob))
-
     # Write the status of the problem solution
     st.write("Schedule Status: {}".format(LpStatus[prob.status]))
 
