@@ -24,25 +24,29 @@ pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND")
 start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
 end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
 
+# Initialize variables
+prob = None
+charge_vars = None
+discharge_vars = None
+SOC_vars = None
+
 # Button to run the optimization
 if st.button('Run Optimization'):
 
     # Get data from gridstatus.io
-
     API_Key = "ebb576413c2308080c81d9ded9ae8c86"
     client = GridStatusClient(API_Key)
 
     grid_status_data = client.get_dataset(
         dataset="caiso_lmp_day_ahead_hourly",
         filter_column="location",
-        filter_value= pricing_node,
-        start = start_date.strftime('%Y-%m-%d'),
-        end = end_date.strftime('%Y-%m-%d'),
+        filter_value=pricing_node,
+        start=start_date.strftime('%Y-%m-%d'),
+        end=end_date.strftime('%Y-%m-%d'),
         tz="US/Pacific",  # return time stamps in Pacific time
     )
 
     # Create dataframe for relevant columns and extract prices as a list from it
-
     da_prices_df = grid_status_data[["interval_start_local", "lmp"]]
     da_prices = da_prices_df['lmp'].tolist()
 
@@ -56,13 +60,13 @@ if st.button('Run Optimization'):
         # Variables
         charge_vars = LpVariable.dicts("Charging", range(num_hours), lowBound=0, upBound=charge_power_limit)
         discharge_vars = LpVariable.dicts("Discharging", range(num_hours), lowBound=0, upBound=discharge_power_limit)
-        SOC_vars = LpVariable.dicts("SOC", range(num_hours+1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
+        SOC_vars = LpVariable.dicts("SOC", range(num_hours + 1), lowBound=SOC_min, upBound=SOC_max)  # Including initial SOC
 
         # Problem
         prob = LpProblem("Battery Scheduling", LpMaximize)
 
         # Objective function
-        prob += lpSum([da_prices[t]*discharge_efficiency*discharge_vars[t] - da_prices[t]*charge_vars[t]/charge_efficiency for t in range(num_hours)])
+        prob += lpSum([da_prices[t] * discharge_efficiency * discharge_vars[t] - da_prices[t] * charge_vars[t] / charge_efficiency for t in range(num_hours)])
 
         # Constraints
         # Initial SOC constraint
@@ -71,28 +75,25 @@ if st.button('Run Optimization'):
         # SOC update constraints
         for t in range(num_hours):
             if t == 0:
-                prob += SOC_vars[t+1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
+                prob += SOC_vars[t + 1] == SOC_vars[t] + charge_vars[t] - discharge_vars[t]
             else:
-                prob += SOC_vars[t+1] == SOC_vars[t] + charge_efficiency*charge_vars[t] - discharge_vars[t]
+                prob += SOC_vars[t + 1] == SOC_vars[t] + charge_efficiency * charge_vars[t] - discharge_vars[t]
                 prob += discharge_vars[t] <= discharge_efficiency * SOC_vars[t]
 
         # Cycle limit constraints
-        prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit*energy_capacity/charge_efficiency
+        prob += lpSum([charge_vars[t] for t in range(num_hours)]) <= total_cycle_limit * energy_capacity / charge_efficiency
 
         # Solve the problem
         prob.solve()
 
         # Return the optimization model and variables
         return prob, charge_vars, discharge_vars, SOC_vars
-    
-        # Run the optimization model
-        prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-        # Solve the problem
-        prob.solve()
+    # Run the optimization model
+    prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-        # Write the status of the problem solution
-        st.write("Schedule Status: {}".format(LpStatus[prob.status]))
+    # Write the status of the problem solution
+    st.write("Schedule Status: {}".format(LpStatus[prob.status]))
 
     # Prepare data for results table
     results = []
@@ -129,7 +130,7 @@ if st.button('Run Optimization'):
     monthly_metrics['Start Date'] = monthly_metrics.index
     yearly_metrics['Start Date'] = yearly_metrics.index
 
-    # Determine table metrics based on number of days of analysis
+    # Determine table metrics based on the number of days of analysis
     if num_days <= 31:
         # Daily metrics
         metrics = daily_metrics
@@ -184,11 +185,10 @@ if st.button('Run Optimization'):
 
     # Reorder columns in the metrics DataFrame
     metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
-                                   'Charging Costs ($)', 'Net Revenue ($)'])
-   
+                                       'Charging Costs ($)', 'Net Revenue ($)'])
+
     # Reset the index of metrics DataFrame
     metrics.reset_index(drop=True, inplace=True)
 
     # Display the metrics DataFrame as a table
     st.table(metrics)
-
