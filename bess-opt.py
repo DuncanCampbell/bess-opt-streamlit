@@ -10,25 +10,25 @@ st.title("Battery Scheduling App")
 
 # Define Battery Parameters
 
-energy_capacity = st.number_input("Energy capacity (MWh)", value=100.0)
-charge_power_limit = st.number_input("Charge power limit (MW)", value=25.0)
-discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0)
-charge_efficiency = st.number_input("Charge efficiency", value=0.95)
-discharge_efficiency = st.number_input("Discharge efficiency", value=0.95)
-SOC_max = st.number_input("Max SOC (MWh)", value=100.0)
-SOC_min = st.number_input("Min SOC (MWh)", value=0.0)
-daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0)
-annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0)
+col1, col2 = st.beta_columns(2)
+
+with col1:
+    energy_capacity = st.number_input("Energy capacity (MWh)", value=100.0)
+    charge_power_limit = st.number_input("Charge power limit (MW)", value=25.0)
+    discharge_power_limit = st.number_input("Discharge power limit (MW)", value=25.0)
+    charge_efficiency = st.number_input("Charge efficiency", value=0.95)
+
+with col2:
+    discharge_efficiency = st.number_input("Discharge efficiency", value=0.95)
+    SOC_max = st.number_input("Max SOC (MWh)", value=100.0)
+    SOC_min = st.number_input("Min SOC (MWh)", value=0.0)
+    daily_cycle_limit = st.number_input("Daily cycle limit", value=1.0)
+    annual_cycle_limit = st.number_input("Annual cycle limit", value=300.0)
+
 SOC_initial = st.number_input("Initial SOC (MWh)", value=0.0)
 pricing_node = st.text_input("Pricing Node", value="TH_NP15_GEN-APND") 
 start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'))
 end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'))
-
-# Initialize variables
-prob = None
-charge_vars = None
-discharge_vars = None
-SOC_vars = None
 
 # Button to run the optimization
 if st.button('Run Optimization'):
