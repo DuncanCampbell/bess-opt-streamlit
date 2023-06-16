@@ -182,6 +182,10 @@ if st.button('Run Optimization'):
     # Join them back together
     metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
 
+    # Reorder columns in the metrics DataFrame
+    metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
+                                   'Charging Costs ($)', 'Net Revenue ($)'])
+
     # Display the table
     st.table(metrics)
     
