@@ -97,15 +97,110 @@ if st.button('Run Optimization'):
         results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
     results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+
+    # Calculate hourly metrics
+    results_df['hourly_discharging_revenue'] = results_df['Discharging (MW)'] * da_prices_df['lmp'] * discharge_efficiency
+    results_df['hourly_charging_costs'] = results_df['Charging (MW)'] * da_prices_df['lmp'] / charge_efficiency
+    results_df['hourly_net_revenue'] = results_df['hourly_discharging_revenue'] - results_df['hourly_charging_costs']
+    results_df['hourly_cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
+
+    # Aggregate data daily, weekly, monthly, and yearly
+    cols_to_keep = ['hourly_discharging_revenue', 'hourly_charging_costs', 'hourly_net_revenue', 'hourly_cycles']
+
+    daily_metrics = results_df[cols_to_keep].resample('D').sum()
+    weekly_metrics = results_df[cols_to_keep].resample('W').sum()
+    weekly_metrics.index = weekly_metrics.index - pd.offsets.Day(6)
+    monthly_metrics = results_df[cols_to_keep].resample('MS').sum()
+    yearly_metrics = results_df[cols_to_keep].resample('Y').sum()
+    yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
+
+    # Add start and end dates for each period
+    daily_metrics['End Date'] = (daily_metrics.index + pd.DateOffset(days=1)) - pd.Timedelta(1, unit='s')
+    weekly_metrics['End Date'] = (weekly_metrics.index + pd.DateOffset(weeks=1)) - pd.Timedelta(1, unit='s')
+    monthly_metrics['End Date'] = (monthly_metrics.index + pd.offsets.MonthBegin(1)) - pd.Timedelta(1, unit='D')
+    yearly_metrics['End Date'] = (yearly_metrics.index + pd.DateOffset(years=1)) - pd.Timedelta(1, unit='s')
+
+    # Add start and end dates for each period
+    daily_metrics['Start Date'] = daily_metrics.index
+    weekly_metrics['Start Date'] = weekly_metrics.index
+    monthly_metrics['Start Date'] = monthly_metrics.index
+    yearly_metrics['Start Date'] = yearly_metrics.index
+
+    # Determine table metrics based on number of days of analysis
+    if num_days <= 31:
+        # Daily metrics
+        metrics = daily_metrics
+    elif num_days <= 93:
+        # Weekly metrics
+        metrics = weekly_metrics
+    elif num_days <= 730:
+        # Monthly metrics
+        metrics = monthly_metrics
+    else:
+        # Yearly metrics
+        metrics = yearly_metrics
+
+    # Calculate the total for each column
+    totals = metrics.sum(numeric_only=True)
+    totals.name = 'Total'
+
+    # Append totals to the end of the dataframe
+    metrics = pd.concat([metrics, pd.DataFrame(totals).T])
+
+    # Rename columns for the final table
+    metrics = metrics.rename(columns={
+        'hourly_discharging_revenue': 'Discharging Revenue ($)',
+        'hourly_charging_costs': 'Charging Costs ($)',
+        'hourly_net_revenue': 'Net Revenue ($)',
+        'hourly_cycles': 'Cycles'
+    })
+
+    # Prepare the values in pandas before passing to Plotly
+    metrics_no_total = metrics.iloc[:-1].copy()  # Exclude the 'Total' row temporarily
+    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M')
+    metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
+    metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
+    metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+    metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
+    metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+
+    # Handle the 'Total' row separately
+    total_row = metrics.iloc[-1].copy()
+    total_row.name = 'Total'
+    total_row['Start Date'] = ''
+    total_row['End Date'] = ''
+    total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
+    total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
+    total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
+    total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
+
+    # Join them back together
+    metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
+
+    # Generate table
+    table = go.Figure(data=[go.Table(
+        header=dict(values=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)'],
+                    fill_color='black',
+                    font=dict(color='white'),
+                    align='left'),
+        cells=dict(values=[metrics.index, metrics['End Date'], metrics['Cycles'],
+                           metrics['Discharging Revenue ($)'], metrics['Charging Costs ($)'],
+                           metrics['Net Revenue ($)']],
+                   fill_color='darkslategray',
+                   font=dict(color='white'),
+                   align='left'))
+    ])
+
     st.dataframe(results_df)
+    st.plotly_chart(table)
 
-    # Prepare data for the plots
-    SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
+# Prepare data for the plots
+SOC = [SOC_vars[t].varValue for t in range(num_hours)]  # Exclude last SOC
 
-    # Create subplots: SOC and Prices
-    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("State of Charge", "Day Ahead Prices"))
+# Create subplots: SOC and Prices
+fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=("State of Charge", "Day Ahead Prices"))
 
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=2, col=1)
+fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=SOC, mode='lines', name='SOC'), row=1, col=1)
+fig.add_trace(go.Scatter(x=da_prices_df['interval_start_local'], y=da_prices, mode='lines', name='DA Prices'), row=2, col=1)
 
-    st.plotly_chart(fig)
+st.plotly_chart(fig)
