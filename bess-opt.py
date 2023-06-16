@@ -214,7 +214,7 @@ if st.button('Run Optimization'):
     # Calculate total metrics
     total_discharging_revenue = metrics['Discharging Revenue ($)'].sum()
     total_charging_costs = metrics['Charging Costs ($)'].sum()
-    total_net_revenue = metrics['Net Revenue ($)'].sum()
+    total_net_revenue = pd.to_numeric(metrics['Net Revenue ($)'], errors='coerce').sum()
     
     # Calculate total cycles
     total_cycles = pd.to_numeric(metrics['Cycles'], errors='coerce').sum()
