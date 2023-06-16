@@ -202,22 +202,9 @@ if st.button('Run Optimization'):
         margin=dict(l=0, r=0, t=0, b=0),
         font_family="Arial",
         font_size=12,
-    )
-
-    # Set column widths
-    table.update_layout(
         autosize=True,
-        template="plotly_white",
-        # Set individual column widths
-        grid=dict(
-            rows=1,  # Specify the number of rows
-            columns=len(column_widths),
-            pattern="independent",
-            roworder="top to bottom",  # Specify the row order
-        ),
-        column_widths=column_widths,
+        template="plotly_white"
     )
-
 
     # Display the table
     st.plotly_chart(table)
