@@ -217,9 +217,10 @@ if st.button('Run Optimization'):
             columns=len(column_widths),
             pattern="independent",
             roworder="top to bottom",  # Specify the row order
-            widths=column_widths,
-        )
+        ),
+        column_widths=column_widths,
     )
+
 
     # Display the table
     st.plotly_chart(table)
