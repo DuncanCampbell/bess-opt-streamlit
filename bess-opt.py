@@ -185,11 +185,10 @@ if st.button('Run Optimization'):
     # Reorder columns in the metrics DataFrame
     metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
                                    'Charging Costs ($)', 'Net Revenue ($)'])
+    # Reorder columns in the metrics DataFrame
+    metrics = metrics[['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
+                       'Charging Costs ($)', 'Net Revenue ($)']]
 
-    # Remove duplicate column
-    metrics = metrics.iloc[:, 0:]
-
-    # Display the table
+    # Display the metrics DataFrame as a table
     st.table(metrics)
-    
 
