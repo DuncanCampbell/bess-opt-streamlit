@@ -45,6 +45,15 @@ with col2:
 # Button to run the optimization
 if st.button('Run Optimization'):
 
+    # Make it rain
+    from streamlit_extras.let_it_rain import rain
+    rain(
+        emoji="🔋",
+        font_size=54,
+        falling_speed=5,
+        animation_length="infinite",
+    )
+    
     # Get data from gridstatus.io
     API_Key = "ebb576413c2308080c81d9ded9ae8c86"
     client = GridStatusClient(API_Key)
