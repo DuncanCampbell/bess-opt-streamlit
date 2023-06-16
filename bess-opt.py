@@ -212,15 +212,15 @@ if st.button('Run Optimization'):
     metrics['Cycles'] = pd.to_numeric(metrics['Cycles'], errors='coerce')
 
     # Calculate total metrics
-    total_discharging_revenue = pd.to_numeric(metrics['Discharging Revenue ($)'], errors='coerce').sum()
-    total_charging_costs = pd.to_numeric(metrics['Charging Costs ($)'], errors='coerce').sum()
-    total_net_revenue = pd.to_numeric(metrics['Net Revenue ($)'], errors='coerce').sum()
+    total_discharging_revenue = metrics.loc['Total', 'Discharging Revenue ($)']
+    total_charging_costs = metrics.loc['Total', 'Charging Costs ($)']
+    total_net_revenue = metrics.loc['Total', 'Net Revenue ($)']
     
     # Calculate total cycles
-    total_cycles = pd.to_numeric(metrics['Cycles'], errors='coerce').sum()
+    total_cycles = metrics.loc['Total', 'Cycles']
     
     # Calculate average net revenue per cycle
-    if not pd.isna(total_cycles) and total_cycles != 0:
+    if pd.notnull(total_cycles) and total_cycles != 0:
         average_net_revenue_per_cycle = total_net_revenue / total_cycles
     else:
         average_net_revenue_per_cycle = 0
@@ -228,14 +228,13 @@ if st.button('Run Optimization'):
     # Display metrics
     st.header("Optimization Summary")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Discharging Revenue", f"${total_discharging_revenue:.0f}")
-    col2.metric("Total Charging Costs", f"${total_charging_costs:.0f}")
-    col3.metric("Total Net Revenue", f"${total_net_revenue:.0f}")
+    col1.metric("Total Discharging Revenue", f"${total_discharging_revenue}")
+    col2.metric("Total Charging Costs", f"${total_charging_costs}")
+    col3.metric("Total Net Revenue", f"${total_net_revenue}")
     st.subheader("Average Metrics")
     col4, col5 = st.columns(2)
     col4.metric("Total Cycles", f"{total_cycles:.1f}")
     col5.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
-
 
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
