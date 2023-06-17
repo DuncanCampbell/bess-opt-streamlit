@@ -229,9 +229,10 @@ if st.button('Run Optimization'):
     col2.metric("Total Charging Costs", f"${total_charging_costs}")
     col3.metric("Total Net Revenue", f"${total_net_revenue}")
     st.subheader("Average Metrics")
-    col4, col5 = st.columns(2)
-    col4.metric("Total Cycles", f"{total_cycles:.1f}")
-    col5.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
+    col4, col5, col6 = st.columns(3)
+    col4.metric("Days Analyzed", f"{num_days:.0f}")
+    col5.metric("Total Cycles", f"{total_cycles:.0f}")
+    col6.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
 
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
