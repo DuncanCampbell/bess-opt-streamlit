@@ -225,13 +225,13 @@ if st.button('Run Optimization'):
     # Display metrics
     st.header("Optimization Summary")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Discharging Revenue", f"${total_discharging_revenue}")
-    col2.metric("Total Charging Costs", f"${total_charging_costs}")
-    col3.metric("Total Net Revenue", f"${total_net_revenue}")
+    col1.metric("Total Discharging Revenue", f"${total_discharging_revenue:,.0f}")
+    col2.metric("Total Charging Costs", f"${total_charging_costs:,.0f}")
+    col3.metric("Total Net Revenue", f"${total_net_revenue:,.0f}")
     col4, col5, col6 = st.columns(3)
-    col4.metric("Days Analyzed", f"{num_days:.0f}")
-    col5.metric("Total Cycles", f"{total_cycles:.0f}")
-    col6.metric("Profit per MWh", f"${average_profit_per_mwh:.0f}")
+    col4.metric("Days Analyzed", f"{num_days:,.0f}")
+    col5.metric("Total Cycles", f"{total_cycles:,.0f}")
+    col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
 
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
