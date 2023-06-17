@@ -179,7 +179,7 @@ if st.button('Run Optimization'):
 
     # Prepare the values in pandas before passing to Plotly
     metrics_no_total = metrics.iloc[:-1].copy()  # Exclude the 'Total' row temporarily
-    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d')
+    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M:%S')
     metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(
         lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
     metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
