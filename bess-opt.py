@@ -209,9 +209,9 @@ if st.button('Run Optimization'):
     metrics.reset_index(drop=True, inplace=True)
 
     # Calculate total metrics
-    total_discharging_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Discharging Revenue ($)']).values[0]
-    total_charging_costs = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Charging Costs ($)']).values[0]
-    total_net_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Net Revenue ($)']).values[0]
+    total_discharging_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Discharging Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+    total_charging_costs = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Charging Costs ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+    total_net_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Net Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
     
     # Calculate total cycles
     total_cycles = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Cycles']).values[0]
