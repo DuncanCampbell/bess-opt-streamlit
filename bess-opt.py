@@ -289,8 +289,7 @@ if results_df is not None:
         yaxis=dict(title='LMP $/MWh', side='left', showgrid=False),
         yaxis2=dict(title='SOC (MWh)', side='right', showgrid=False),
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
-        height=500,
-        width='100%'
+        autosize=True
     )
     
     # Line chart
