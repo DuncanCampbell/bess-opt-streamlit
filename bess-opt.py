@@ -42,17 +42,17 @@ col1, col2 = st.columns(2)
 
 with col1:
     energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
-    charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=100.0, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
-    discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=100.0, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
-    SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=200.0, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
+    charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
+    discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
+    SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
     daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
 
 with col2:
     discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
     charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
-    SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=200.0, value=100.0, step=1.0, format="%.1f", key="SOC_max")
-    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=100.0, value=0.0, step=1.0, format="%.1f", key="SOC_min")
-    annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=1000.0, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
+    SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f", key="SOC_max")
+    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=SOC_max, value=0.0, step=1.0, format="%.1f", key="SOC_min")
+    annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
 
 # Button to run the optimization
 if st.button('Run Optimization'):
