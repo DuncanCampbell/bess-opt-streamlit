@@ -70,7 +70,10 @@ if st.button('Run Optimization'):
         falling_speed=3,
         animation_length=1,
     )
-    
+
+    # Add a progress bar
+    progress_bar = st.progress(0)
+       
     # Get data from gridstatus.io
     API_Key = "ebb576413c2308080c81d9ded9ae8c86"
     client = GridStatusClient(API_Key)
@@ -83,6 +86,9 @@ if st.button('Run Optimization'):
         end=end_date.strftime('%Y-%m-%d'),
         tz="US/Pacific",  # return time stamps in Pacific time
     )
+
+    # Update the progress bar
+    progress_bar.progress(20)
 
     # Create dataframe for relevant columns and extract prices as a list from it
     da_prices_df = grid_status_data[["interval_start_local", "lmp"]]
@@ -127,6 +133,9 @@ if st.button('Run Optimization'):
         # Return the optimization model and variables
         return prob, charge_vars, discharge_vars, SOC_vars
 
+    # Update the progress bar
+    progress_bar.progress(40)
+    
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
@@ -136,7 +145,10 @@ if st.button('Run Optimization'):
      results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
     
     results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
-    
+
+# Update the progress bar
+progress_bar.progress(80)
+
 # Calculate hourly metrics
 if results_df is not None:
     results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
@@ -299,3 +311,6 @@ if results_df is not None:
     # Display the metrics DataFrame as a table
     st.header("Performance Summary")
     st.table(metrics)
+
+    # Update the progress bar
+    progress_bar.progress(100)
