@@ -128,13 +128,13 @@ if st.button('Run Optimization'):
     # Prepare data for results table
     results = []
     for t in range(num_hours):
-        results.append([da_prices_df['interval_start_local'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
+        results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
-    results_df = pd.DataFrame(results, columns=["Time", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+    results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
 
     # Calculate hourly metrics
-    results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * da_prices_df['lmp'] * discharge_efficiency
-    results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * da_prices_df['lmp'] / charge_efficiency
+    results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * "LMP $/MWh" * discharge_efficiency
+    results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * "LMP $/MWh" / charge_efficiency
     results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
     results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
 
