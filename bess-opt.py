@@ -218,7 +218,7 @@ if st.button('Run Optimization'):
     
     # Calculate average net revenue per cycle
     if total_cycles != 0:
-        average_net_revenue_per_cycle = total_net_revenue / total_cycles
+        average_profit_per_mwh = total_net_revenue / total_cycles / (energy_capacity / charge_efficiency)
     else:
         average_net_revenue_per_cycle = 0
 
@@ -228,11 +228,10 @@ if st.button('Run Optimization'):
     col1.metric("Total Discharging Revenue", f"${total_discharging_revenue}")
     col2.metric("Total Charging Costs", f"${total_charging_costs}")
     col3.metric("Total Net Revenue", f"${total_net_revenue}")
-    st.subheader("Average Metrics")
     col4, col5, col6 = st.columns(3)
     col4.metric("Days Analyzed", f"{num_days:.0f}")
     col5.metric("Total Cycles", f"{total_cycles:.0f}")
-    col6.metric("Average Net Revenue per Cycle", f"${average_net_revenue_per_cycle:.0f}")
+    col6.metric("Profit per MWh", f"${average_profit_per_mwh:.0f}")
 
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
