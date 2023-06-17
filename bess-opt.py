@@ -259,17 +259,20 @@ selected_date = pd.to_datetime(st.date_input("Select a date", value=most_profita
 # Convert the selected date to the same time zone as the 'results_df' data
 selected_date = selected_date.tz_localize('US/Pacific')
 
-# Filter data for selected date and two adjacent days
-start_date = selected_date - pd.DateOffset(days=1)
-end_date = selected_date + pd.DateOffset(days=1)
-filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
-
-# Prepare data for line chart
-chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
-chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
-
-# Line chart
-st.line_chart(chart_data.set_index('Time'))
+if results_df is not None:
+    # Filter data for selected date and two adjacent days
+    start_date = selected_date - pd.DateOffset(days=1)
+    end_date = selected_date + pd.DateOffset(days=1)
+    filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
+    
+    # Prepare data for line chart
+    chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
+    chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
+    
+    # Line chart
+    st.line_chart(chart_data.set_index('Time'))
+else:
+    st.write("Please run the optimization to view the chart.")
 
 # Display the metrics DataFrame as a table
 st.header("Dispatch Breakdown")
