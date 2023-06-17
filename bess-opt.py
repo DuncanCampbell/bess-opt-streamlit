@@ -5,6 +5,7 @@ from gridstatusio import GridStatusClient
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+import base64
 
 #Streamlit Setup
 
