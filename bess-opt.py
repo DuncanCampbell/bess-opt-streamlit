@@ -129,7 +129,7 @@ if st.button('Run Optimization'):
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
     with expander:
-    expander.header("Optimization Results")
+        expander.header("Optimization Results")
     
         # Prepare data for results table
         results = []
