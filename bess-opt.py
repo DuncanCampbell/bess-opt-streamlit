@@ -292,6 +292,7 @@ if results_df is not None:
     )
     
     # Line chart
+    st.header("Dispatch Chart")
     st.plotly_chart(fig, use_container_width=True)
     
     # Display the metrics DataFrame as a table
