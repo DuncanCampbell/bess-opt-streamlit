@@ -22,7 +22,7 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 # Define Pricing Info
 
-st.header("🗠 Energy Market Inputs")
+st.header("💸 Energy Market Inputs")
 
 col1, col2 = st.columns(2)
 
