@@ -240,7 +240,7 @@ if results_df is not None:
      average_net_revenue_per_cycle = 0
     
     # Display metrics
-    st.header("Optimization Summary")
+    st.header("Key Metrics")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Discharging Revenue", f"${total_discharging_revenue:,.0f}")
     col2.metric("Total Charging Costs", f"${total_charging_costs:,.0f}")
@@ -269,8 +269,9 @@ if results_df is not None:
     chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
     
     # Line chart
+    st.header("Dispatch Chart")
     st.line_chart(chart_data.set_index('Time'))
     
     # Display the metrics DataFrame as a table
-    st.header("Dispatch Breakdown")
+    st.header("Performance Summary")
     st.table(metrics)
