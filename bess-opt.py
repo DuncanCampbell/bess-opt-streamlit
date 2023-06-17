@@ -51,7 +51,7 @@ with col2:
     discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
     charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
     SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f", key="SOC_max")
-    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=SOC_max, value=0.0, step=1.0, format="%.1f", key="SOC_min")
+    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_min")
     annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
 
 # Button to run the optimization
