@@ -312,4 +312,4 @@ if results_df is not None:
     b64 = base64.b64encode(csv.encode()).decode()
     button_text = "Download Results CSV"
     button_label = f"Download {len(results_df)} rows"
-    st.download_button(button_text, data=b64, file_name='results.csv', mime='text/csv', label=button_label)
+    st.download_button(button_text, data=b64, file_name='results.csv', mime='text/csv')
