@@ -305,3 +305,10 @@ if results_df is not None:
     # Display the metrics DataFrame as a table
     st.header("Performance Summary")
     st.table(metrics)
+
+    # Download button for results_df CSV
+    csv = results_df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()
+    button_text = "Download Results CSV"
+    button_label = f"Download {len(results_df)} rows"
+    st.download_button(button_text, data=b64, file_name='results.csv', mime='text/csv', label=button_label)
