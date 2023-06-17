@@ -221,7 +221,7 @@ if st.button('Run Optimization'):
         average_net_revenue_per_cycle = total_net_revenue / total_cycles
     else:
         average_net_revenue_per_cycle = 0
-    
+
     # Display metrics
     st.header("Optimization Summary")
     col1, col2, col3 = st.columns(3)
