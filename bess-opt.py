@@ -245,6 +245,17 @@ if st.button('Run Optimization'):
     col5.metric("Total Cycles", f"{total_cycles:,.0f}")
     col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
 
+    # Date selection
+    selected_date = st.date_input("Select a date", value=pd.to_datetime('2022-01-01'))
+    
+    # Filter data for selected date and two adjacent days
+    start_date = selected_date - pd.DateOffset(days=1)
+    end_date = selected_date + pd.DateOffset(days=1)
+    filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
+    
+    # Line chart
+    st.line_chart(filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']])
+       
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
     st.table(metrics)
