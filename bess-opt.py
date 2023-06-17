@@ -254,7 +254,10 @@ if results_df is not None:
     col4.metric("Days Analyzed", f"{num_days:,.0f}")
     col5.metric("Total Cycles", f"{total_cycles:,.0f}")
     col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
-    
+
+    #Header
+    st.header("Dispatch Chart")
+       
     # Find the date with the highest net revenue (most profitable day)
     most_profitable_day = daily_metrics['Net Revenue ($)'].idxmax()
     
@@ -297,7 +300,6 @@ if results_df is not None:
     )
     
     # Line chart
-    st.header("Dispatch Chart")
     st.plotly_chart(fig, use_container_width=True)
     
     # Display the metrics DataFrame as a table
