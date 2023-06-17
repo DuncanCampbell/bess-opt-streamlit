@@ -268,9 +268,32 @@ if results_df is not None:
     chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
     chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
     
+    # Create subplots with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    # Add the first line trace (LMP $/MWh) to the figure
+    fig.add_trace(
+        go.Scatter(x=chart_data['Time'], y=chart_data['LMP $/MWh'], name='LMP $/MWh'),
+        secondary_y=False
+    )
+    
+    # Add the second line trace (SOC MWh) to the figure
+    fig.add_trace(
+        go.Scatter(x=chart_data['Time'], y=chart_data['SOC (MWh)'], name='SOC (MWh)'),
+        secondary_y=True
+    )
+    
+    # Update the layout of the figure
+    fig.update_layout(
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='LMP $/MWh', side='left', showgrid=False),
+        yaxis2=dict(title='SOC (MWh)', side='right', showgrid=False),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+        height=500
+    )
+    
     # Line chart
-    st.header("Dispatch Chart")
-    st.line_chart(chart_data.set_index('Time'))
+    st.plotly_chart(fig)
     
     # Display the metrics DataFrame as a table
     st.header("Performance Summary")
