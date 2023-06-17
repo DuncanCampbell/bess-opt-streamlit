@@ -249,7 +249,7 @@ if st.button('Run Optimization'):
     most_profitable_day = daily_metrics['Net Revenue ($)'].idxmax()
     
     # Set the default selected date as the most profitable day
-    selected_date = st.date_input("Select a date", value=most_profitable_day)
+    selected_date = pd.to_datetime(st.date_input("Select a date", value=most_profitable_day))
     
     # Filter data for selected date and two adjacent days
     start_date = selected_date - pd.DateOffset(days=1)
