@@ -136,10 +136,11 @@ if st.button('Run Optimization'):
     results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
     
 # Calculate hourly metrics
-results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
-results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * results_df["LMP $/MWh"] / charge_efficiency
-results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
-results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
+if results_df is not None:
+    results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
+    results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * results_df["LMP $/MWh"] / charge_efficiency
+    results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
+    results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
 
 # Aggregate data daily, weekly, monthly, and yearly
 cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
