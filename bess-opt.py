@@ -12,7 +12,7 @@ st.markdown(
     """
     <style>
     .reportview-container .main {
-        max-width: 80%;
+        max-width: 40%;
     }
     </style>
     """,
