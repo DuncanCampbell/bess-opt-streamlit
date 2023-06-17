@@ -244,7 +244,7 @@ if st.button('Run Optimization'):
     col4.metric("Days Analyzed", f"{num_days:,.0f}")
     col5.metric("Total Cycles", f"{total_cycles:,.0f}")
     col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
-
+    
     # Find the date with the highest net revenue (most profitable day)
     most_profitable_day = daily_metrics['Net Revenue ($)'].idxmax()
     
@@ -259,8 +259,12 @@ if st.button('Run Optimization'):
     end_date = selected_date + pd.DateOffset(days=1)
     filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
     
+    # Prepare data for line chart
+    chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
+    chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
+    
     # Line chart
-    st.line_chart(filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']])
+    st.line_chart(chart_data.set_index('Time'))
        
     # Display the metrics DataFrame as a table
     st.header("Dispatch Breakdown")
