@@ -70,7 +70,9 @@ if st.button('Run Optimization'):
         falling_speed=3,
         animation_length=1,
     )
-       
+
+    st.info('Optimization started', icon="🤯")
+    
     # Get data from gridstatus.io
     API_Key = "ebb576413c2308080c81d9ded9ae8c86"
     client = GridStatusClient(API_Key)
@@ -130,6 +132,8 @@ if st.button('Run Optimization'):
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
+    st.success('Optimization complete!', icon="✅")
+    
     # Prepare data for results table
     results = []
     for t in range(num_hours):
