@@ -128,151 +128,154 @@ if st.button('Run Optimization'):
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-    # Prepare data for results table
-    results = []
-    for t in range(num_hours):
-        results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
-
-    results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
-
-    # Calculate hourly metrics
-    results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
-    results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * results_df["LMP $/MWh"] / charge_efficiency
-    results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
-    results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
-
-    # Aggregate data daily, weekly, monthly, and yearly
-    cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
-
-    daily_metrics = results_df.set_index('Time')[cols_to_keep].resample('D').sum()
-    weekly_metrics = results_df.set_index('Time')[cols_to_keep].resample('W').sum()
-    weekly_metrics.index = weekly_metrics.index - pd.DateOffset(days=6)
-    monthly_metrics = results_df.set_index('Time')[cols_to_keep].resample('MS').sum()
-    yearly_metrics = results_df.set_index('Time')[cols_to_keep].resample('Y').sum()
-    yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
-
-    # Add start and end dates for each period
-    daily_metrics['End Date'] = (daily_metrics.index + pd.DateOffset(days=1)) - pd.Timedelta(1, unit='s')
-    weekly_metrics['End Date'] = (weekly_metrics.index + pd.DateOffset(weeks=1)) - pd.Timedelta(1, unit='s')
-    monthly_metrics['End Date'] = (monthly_metrics.index + pd.offsets.MonthBegin(1)) - pd.Timedelta(1, unit='D')
-    yearly_metrics['End Date'] = (yearly_metrics.index + pd.DateOffset(years=1)) - pd.Timedelta(1, unit='s')
-
-    # Add start and end dates for each period
-    daily_metrics['Start Date'] = daily_metrics.index
-    weekly_metrics['Start Date'] = weekly_metrics.index
-    monthly_metrics['Start Date'] = monthly_metrics.index
-    yearly_metrics['Start Date'] = yearly_metrics.index
-
-    # Determine table metrics based on the number of days of analysis
-    if num_days <= 31:
-        # Daily metrics
-        metrics = daily_metrics
-    elif num_days <= 93:
-        # Weekly metrics
-        metrics = weekly_metrics
-    elif num_days <= 730:
-        # Monthly metrics
-        metrics = monthly_metrics
-    else:
-        # Yearly metrics
-        metrics = yearly_metrics
-
-    # Calculate the total for each column
-    totals = metrics.sum(numeric_only=True)
-    totals.name = 'Total'
-
-    # Append totals to the end of the dataframe
-    metrics = pd.concat([metrics, pd.DataFrame(totals).T])
-
-    # Rename columns for the final table
-    metrics = metrics.rename(columns={
-        'Discharging Revenue ($)': 'Discharging Revenue ($)',
-        'Charging Costs ($)': 'Charging Costs ($)',
-        'Net Revenue ($)': 'Net Revenue ($)',
-        'Cycles': 'Cycles'
-    })
-
-    # Prepare the values in pandas before passing to Plotly
-    metrics_no_total = metrics.iloc[:-1].copy()  # Exclude the 'Total' row temporarily
-    metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M:%S')
-    metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(
-        lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
-    metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
-    metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(
-        lambda x: f"${x:,.0f}")
-    metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
-    metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
-
-    # Handle the 'Total' row separately
-    total_row = metrics.iloc[-1].copy()
-    total_row.name = 'Total'
-    total_row['Start Date'] = ''
-    total_row['End Date'] = ''
-    total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
-    total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
-    total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
-    total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
-
-    # Join them back together
-    metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
-
-    # Reorder columns in the metrics DataFrame
-    metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
-                                       'Charging Costs ($)', 'Net Revenue ($)'])
-
-    # Reset the index of metrics DataFrame
-    metrics.reset_index(drop=True, inplace=True)
-
-    # Calculate total metrics
-    total_discharging_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Discharging Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
-    total_charging_costs = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Charging Costs ($)'].str.replace(',', '').str.replace('$', '')).values[0]
-    total_net_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Net Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+    with expander:
+    expander.header("Optimization Results")
     
-    # Calculate total cycles
-    total_cycles = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Cycles']).values[0]
+        # Prepare data for results table
+        results = []
+        for t in range(num_hours):
+            results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
     
-    # Calculate average net revenue per cycle
-    if total_cycles != 0:
-        average_profit_per_mwh = total_net_revenue / total_cycles / (energy_capacity / charge_efficiency)
-    else:
-        average_net_revenue_per_cycle = 0
-
-    # Display metrics
-    st.header("Optimization Summary")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Discharging Revenue", f"${total_discharging_revenue:,.0f}")
-    col2.metric("Total Charging Costs", f"${total_charging_costs:,.0f}")
-    col3.metric("Total Net Revenue", f"${total_net_revenue:,.0f}")
-    col4, col5, col6 = st.columns(3)
-    col4.metric("Days Analyzed", f"{num_days:,.0f}")
-    col5.metric("Total Cycles", f"{total_cycles:,.0f}")
-    col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
+        results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
     
-    # Find the date with the highest net revenue (most profitable day)
-    most_profitable_day = daily_metrics['Net Revenue ($)'].idxmax()
+        # Calculate hourly metrics
+        results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
+        results_df['Charging Costs ($)'] = results_df['Charging (MW)'] * results_df["LMP $/MWh"] / charge_efficiency
+        results_df['Net Revenue ($)'] = results_df['Discharging Revenue ($)'] - results_df['Charging Costs ($)']
+        results_df['Cycles'] = results_df['Charging (MW)'] * charge_efficiency / energy_capacity
     
-    # Set the default selected date as the most profitable day
-    selected_date = pd.to_datetime(st.date_input("Select a date", value=most_profitable_day))
+        # Aggregate data daily, weekly, monthly, and yearly
+        cols_to_keep = ['Discharging Revenue ($)', 'Charging Costs ($)', 'Net Revenue ($)', 'Cycles']
     
-    # Convert the selected date to the same time zone as the 'results_df' data
-    selected_date = selected_date.tz_localize('US/Pacific')
+        daily_metrics = results_df.set_index('Time')[cols_to_keep].resample('D').sum()
+        weekly_metrics = results_df.set_index('Time')[cols_to_keep].resample('W').sum()
+        weekly_metrics.index = weekly_metrics.index - pd.DateOffset(days=6)
+        monthly_metrics = results_df.set_index('Time')[cols_to_keep].resample('MS').sum()
+        yearly_metrics = results_df.set_index('Time')[cols_to_keep].resample('Y').sum()
+        yearly_metrics.index = yearly_metrics.index.to_period('Y').to_timestamp('Y')
     
-    # Filter data for selected date and two adjacent days
-    start_date = selected_date - pd.DateOffset(days=1)
-    end_date = selected_date + pd.DateOffset(days=1)
-    filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
+        # Add start and end dates for each period
+        daily_metrics['End Date'] = (daily_metrics.index + pd.DateOffset(days=1)) - pd.Timedelta(1, unit='s')
+        weekly_metrics['End Date'] = (weekly_metrics.index + pd.DateOffset(weeks=1)) - pd.Timedelta(1, unit='s')
+        monthly_metrics['End Date'] = (monthly_metrics.index + pd.offsets.MonthBegin(1)) - pd.Timedelta(1, unit='D')
+        yearly_metrics['End Date'] = (yearly_metrics.index + pd.DateOffset(years=1)) - pd.Timedelta(1, unit='s')
     
-    # Prepare data for line chart
-    chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
-    chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
+        # Add start and end dates for each period
+        daily_metrics['Start Date'] = daily_metrics.index
+        weekly_metrics['Start Date'] = weekly_metrics.index
+        monthly_metrics['Start Date'] = monthly_metrics.index
+        yearly_metrics['Start Date'] = yearly_metrics.index
     
-    # Line chart
-    st.line_chart(chart_data.set_index('Time'))
-       
-    # Display the metrics DataFrame as a table
-    st.header("Dispatch Breakdown")
-    st.table(metrics)
+        # Determine table metrics based on the number of days of analysis
+        if num_days <= 31:
+            # Daily metrics
+            metrics = daily_metrics
+        elif num_days <= 93:
+            # Weekly metrics
+            metrics = weekly_metrics
+        elif num_days <= 730:
+            # Monthly metrics
+            metrics = monthly_metrics
+        else:
+            # Yearly metrics
+            metrics = yearly_metrics
+    
+        # Calculate the total for each column
+        totals = metrics.sum(numeric_only=True)
+        totals.name = 'Total'
+    
+        # Append totals to the end of the dataframe
+        metrics = pd.concat([metrics, pd.DataFrame(totals).T])
+    
+        # Rename columns for the final table
+        metrics = metrics.rename(columns={
+            'Discharging Revenue ($)': 'Discharging Revenue ($)',
+            'Charging Costs ($)': 'Charging Costs ($)',
+            'Net Revenue ($)': 'Net Revenue ($)',
+            'Cycles': 'Cycles'
+        })
+    
+        # Prepare the values in pandas before passing to Plotly
+        metrics_no_total = metrics.iloc[:-1].copy()  # Exclude the 'Total' row temporarily
+        metrics_no_total.index = pd.to_datetime(metrics_no_total.index).strftime('%Y-%m-%d %H:%M:%S')
+        metrics_no_total['End Date'] = metrics_no_total['End Date'].apply(
+            lambda x: x.strftime('%Y-%m-%d %H:%M') if pd.notnull(x) else '')
+        metrics_no_total['Cycles'] = metrics_no_total['Cycles'].round(1)
+        metrics_no_total['Discharging Revenue ($)'] = metrics_no_total['Discharging Revenue ($)'].apply(
+            lambda x: f"${x:,.0f}")
+        metrics_no_total['Charging Costs ($)'] = metrics_no_total['Charging Costs ($)'].apply(lambda x: f"${x:,.0f}")
+        metrics_no_total['Net Revenue ($)'] = metrics_no_total['Net Revenue ($)'].apply(lambda x: f"${x:,.0f}")
+    
+        # Handle the 'Total' row separately
+        total_row = metrics.iloc[-1].copy()
+        total_row.name = 'Total'
+        total_row['Start Date'] = ''
+        total_row['End Date'] = ''
+        total_row['Cycles'] = f"{total_row['Cycles']:.1f}"
+        total_row['Discharging Revenue ($)'] = f"${total_row['Discharging Revenue ($)']:,.0f}"
+        total_row['Charging Costs ($)'] = f"${total_row['Charging Costs ($)']:,.0f}"
+        total_row['Net Revenue ($)'] = f"${total_row['Net Revenue ($)']:,.0f}"
+    
+        # Join them back together
+        metrics = pd.concat([metrics_no_total, total_row.to_frame().T])
+    
+        # Reorder columns in the metrics DataFrame
+        metrics = metrics.reindex(columns=['Start Date', 'End Date', 'Cycles', 'Discharging Revenue ($)',
+                                           'Charging Costs ($)', 'Net Revenue ($)'])
+    
+        # Reset the index of metrics DataFrame
+        metrics.reset_index(drop=True, inplace=True)
+    
+        # Calculate total metrics
+        total_discharging_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Discharging Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+        total_charging_costs = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Charging Costs ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+        total_net_revenue = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Net Revenue ($)'].str.replace(',', '').str.replace('$', '')).values[0]
+        
+        # Calculate total cycles
+        total_cycles = pd.to_numeric(metrics.loc[metrics['Start Date'] == '', 'Cycles']).values[0]
+        
+        # Calculate average net revenue per cycle
+        if total_cycles != 0:
+            average_profit_per_mwh = total_net_revenue / total_cycles / (energy_capacity / charge_efficiency)
+        else:
+            average_net_revenue_per_cycle = 0
+    
+        # Display metrics
+        st.header("Optimization Summary")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Discharging Revenue", f"${total_discharging_revenue:,.0f}")
+        col2.metric("Total Charging Costs", f"${total_charging_costs:,.0f}")
+        col3.metric("Total Net Revenue", f"${total_net_revenue:,.0f}")
+        col4, col5, col6 = st.columns(3)
+        col4.metric("Days Analyzed", f"{num_days:,.0f}")
+        col5.metric("Total Cycles", f"{total_cycles:,.0f}")
+        col6.metric("Profit per MWh", f"${average_profit_per_mwh:,.0f}")
+        
+        # Find the date with the highest net revenue (most profitable day)
+        most_profitable_day = daily_metrics['Net Revenue ($)'].idxmax()
+        
+        # Set the default selected date as the most profitable day
+        selected_date = pd.to_datetime(st.date_input("Select a date", value=most_profitable_day))
+        
+        # Convert the selected date to the same time zone as the 'results_df' data
+        selected_date = selected_date.tz_localize('US/Pacific')
+        
+        # Filter data for selected date and two adjacent days
+        start_date = selected_date - pd.DateOffset(days=1)
+        end_date = selected_date + pd.DateOffset(days=1)
+        filtered_results = results_df[(results_df['Time'] >= start_date) & (results_df['Time'] <= end_date)]
+        
+        # Prepare data for line chart
+        chart_data = filtered_results[['Time', 'LMP $/MWh', 'SOC (MWh)']].copy()
+        chart_data['Time'] = pd.to_datetime(chart_data['Time']).dt.tz_localize(None)
+        
+        # Line chart
+        st.line_chart(chart_data.set_index('Time'))
+           
+        # Display the metrics DataFrame as a table
+        st.header("Dispatch Breakdown")
+        st.table(metrics)
 
 else:
     # Display default content
-    content.header("")
+    expander.header("")
