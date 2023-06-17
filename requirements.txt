@@ -4,4 +4,3 @@ gridstatusio
 pandas
 plotly
 streamlit-extras
-base64
