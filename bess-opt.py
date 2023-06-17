@@ -51,7 +51,7 @@ if st.button('Run Optimization'):
     rain(
         emoji="🔋",
         font_size=54,
-        falling_speed=4,
+        falling_speed=5,
         animation_length=1,
     )
     
