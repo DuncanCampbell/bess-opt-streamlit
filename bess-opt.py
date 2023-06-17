@@ -7,7 +7,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 
 #Streamlit Setup
-
+st.set_page_config(layout="wide")
 st.markdown(
     """
     <style>
