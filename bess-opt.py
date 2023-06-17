@@ -251,6 +251,9 @@ if st.button('Run Optimization'):
     # Set the default selected date as the most profitable day
     selected_date = pd.to_datetime(st.date_input("Select a date", value=most_profitable_day))
     
+    # Convert the selected date to the same time zone as the 'results_df' data
+    selected_date = selected_date.tz_localize('US/Pacific')
+    
     # Filter data for selected date and two adjacent days
     start_date = selected_date - pd.DateOffset(days=1)
     end_date = selected_date + pd.DateOffset(days=1)
