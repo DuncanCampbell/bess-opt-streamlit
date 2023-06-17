@@ -8,7 +8,16 @@ import pandas as pd
 
 #Streamlit Setup
 
-st.set_page_config(layout="wide") # Set the app layout width
+st.markdown(
+    """
+    <style>
+    .reportview-container .main {
+        max-width: 90%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 st.title("Battery Dispatch Optimizer")
 
 # Define Pricing Info
