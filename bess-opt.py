@@ -125,12 +125,12 @@ if st.button('Run Optimization'):
     # Run the optimization model
     prob, charge_vars, discharge_vars, SOC_vars = optimization_model(num_hours, da_prices)
 
-    # Prepare data for results table
-    results = []
-    for t in range(num_hours):
-        results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
+# Prepare data for results table
+results = []
+for t in range(num_hours):
+ results.append([da_prices_df['interval_start_local'][t], da_prices_df['lmp'][t], charge_vars[t].varValue, discharge_vars[t].varValue, SOC_vars[t].varValue])
 
-    results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
+results_df = pd.DataFrame(results, columns=["Time", "LMP $/MWh", "Charging (MW)", "Discharging (MW)", "SOC (MWh)"])
 
 # Calculate hourly metrics
 results_df['Discharging Revenue ($)'] = results_df['Discharging (MW)'] * results_df["LMP $/MWh"] * discharge_efficiency
