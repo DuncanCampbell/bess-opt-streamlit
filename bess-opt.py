@@ -54,8 +54,9 @@ with col2:
     SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_min")
     annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
 
-# Initialize results_df variable
+# Initialize variables
 results_df = None
+chart_data = None
 
 # Button to run the optimization
 if st.button('Run Optimization'):
