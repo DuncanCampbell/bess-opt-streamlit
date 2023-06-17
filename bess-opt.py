@@ -288,12 +288,11 @@ if results_df is not None:
         xaxis=dict(title='Time'),
         yaxis=dict(title='LMP $/MWh', side='left', showgrid=False),
         yaxis2=dict(title='SOC (MWh)', side='right', showgrid=False),
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
-        autosize=True
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
     )
     
     # Line chart
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
     
     # Display the metrics DataFrame as a table
     st.header("Performance Summary")
