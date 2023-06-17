@@ -6,6 +6,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
+#Streamlit Setup
+
+st.set_page_config(layout="wide") # Set the app layout width
 st.title("Battery Dispatch Optimizer")
 
 # Define Pricing Info
