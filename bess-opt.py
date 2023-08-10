@@ -63,7 +63,7 @@ with col2:
 st.header("☀️ Solar System")
 
 solar_capacity = st.number_input('Solar Capacity (kW-DC)')
-col2, col3 - st.columns(3)
+col3, col4 - st.columns(3)
 with col3:
        dc_ac_ratio = st.number_input('DC-AC Ratio')
        array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
@@ -93,14 +93,14 @@ st.header("🔋 Battery System")
 
 col4, col5 = st.columns(2)
 
-with col4:
+with col5:
     energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
     charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
     discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
     SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
     daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
 
-with col5:
+with col6:
     discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
     charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
     SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f", key="SOC_max")
