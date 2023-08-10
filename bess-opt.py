@@ -48,65 +48,59 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
 
     return data["outputs"]["ac"]
 
-# Define Pricing Info
-
-st.header("💸 Energy Market Inputs")
-
-col1, col2 = st.columns(2)
-
-pricing_nodes = ["TH_ZP26_GEN-APND", "TH_SP15_GEN-APND", "TH_NP15_GEN-APND", "DLAP_VEA-APND", "DLAP_SDGE-APND", "DLAP_SCE-APND", "DLAP_PGE-APND"]
-pricing_node = st.selectbox("CAISO Pricing Node", options=pricing_nodes, index=2, key="pricing_node")
-
-with col1:
-    start_date = st.date_input("Start Date", value=pd.to_datetime('2022-01-01'), key="start_date")
-with col2:
-    end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
-
 # Site Information
 
-address = st.text_input('Site Address', 'Number Street, State Zip')
-utility = st.radio("Utility",('PG&E', 'SCE'))
+st.header("🗺️ Site Information")
+
+col1, col2 = st.columns(2)
+with col1:
+       address = st.text_input('Site Address', 'Number Street, State Zip')
+with col2:
+       utility = st.radio("Utility",('PG&E', 'SCE'))
 
 # Define Solar System
 
 st.header("☀️ Solar System")
 
 solar_capacity = st.number_input('Solar Capacity (kW-DC)')
-dc_ac_ratio = st.number_input('DC-AC Ratio')
-array_type_selection = st.radio("Module Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
-if array_type_selection == 'Fixed - Open Rack': 
-    array_type = 0
-elif array_type_selection == 'Fixed - Roof Mounted': 
-    array_type = 1
-elif array_type_selection == 'Single Axis Tracker': 
-    array_type = 2
-elif array_type_selection == 'Single Axis Tracker with Backtracking': 
-    array_type = 3
-module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
-if module_type_selection == 'Standard': 
-    module_type = 0
-elif module_type_selection == 'Premium': 
-    module_type = 1
-elif module_type_selection == 'Thin film': 
-    module_type = 2
-tilt = st.number_input('Tilt', value=10)
-azimuth = st.number_input('Azimuth', value=180)
-losses = st.number_input('Losses %', value=14)
+col2, col3 - st.columns(3)
+with col3:
+       dc_ac_ratio = st.number_input('DC-AC Ratio')
+       array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
+       if array_type_selection == 'Fixed - Open Rack': 
+           array_type = 0
+       elif array_type_selection == 'Fixed - Roof Mounted': 
+           array_type = 1
+       elif array_type_selection == 'Single Axis Tracker': 
+           array_type = 2
+       elif array_type_selection == 'Single Axis Tracker with Backtracking': 
+           array_type = 3
+       tilt = st.number_input('Tilt', value=10)
+with col4
+       losses = st.number_input('Losses %', value=14)
+       module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
+       if module_type_selection == 'Standard': 
+           module_type = 0
+       elif module_type_selection == 'Premium': 
+           module_type = 1
+       elif module_type_selection == 'Thin film': 
+           module_type = 2
+       azimuth = st.number_input('Azimuth', value=180)
 
 # Define Battery System
 
 st.header("🔋 Battery System")
 
-col1, col2 = st.columns(2)
+col4, col5 = st.columns(2)
 
-with col1:
+with col4:
     energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
     charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
     discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
     SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
     daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
 
-with col2:
+with col5:
     discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
     charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
     SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f", key="SOC_max")
