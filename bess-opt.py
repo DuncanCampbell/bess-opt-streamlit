@@ -26,12 +26,12 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 # Function to fetch solar output from PV Watts
 
 def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses):
-    nrel_api_key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
+    api_key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
     pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
     endpoint = f"{pvwatts_base_url}/data"
 
     params = {
-        "api_key": nrel_api_key,
+        "api_key": api_key,
         "address": address,
         "system_capacity": system_capacity,
         "dc_ac_ratio": dc_ac_ratio,
