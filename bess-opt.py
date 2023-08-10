@@ -26,7 +26,6 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 # Function to fetch solar output from PV Watts
 
 def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses):
-    api_key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
     pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
     endpoint = f"{pvwatts_base_url}/data"
 
@@ -136,6 +135,7 @@ if st.button('Run Optimization'):
     total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
     # Fetch solar output from PV Watts
+    api_key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
     solar_output = fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses) 
                                       
     # Create a function to define the optimization model
