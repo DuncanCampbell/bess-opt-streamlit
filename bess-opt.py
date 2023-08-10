@@ -1,4 +1,5 @@
 import streamlit as st
+import requests
 from pulp import *
 import gridstatusio
 from gridstatusio import GridStatusClient
@@ -24,15 +25,15 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 # Function to fetch solar output from PV Watts
 
-def fetch_solar_output(api_key, lat, lon, system_capacity, module_type, losses):
-    NREL_API_Key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
+def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses):
+    nrel_api_key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
     pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
     endpoint = f"{pvwatts_base_url}/data"
-    
+
     params = {
-        "api_key": api_key,
-        "address"; address,
-        "system_capacity": solar_capacity,
+        "api_key": nrel_api_key,
+        "address": address,
+        "system_capacity": system_capacity,
         "dc_ac_ratio": dc_ac_ratio,
         "module_type": module_type,
         "array_type": array_type,
@@ -41,10 +42,10 @@ def fetch_solar_output(api_key, lat, lon, system_capacity, module_type, losses):
         "losses": losses,
         "timeframe": "hourly",
     }
-    
+
     response = requests.get(endpoint, params=params)
     data = response.json()
-    
+
     return data["outputs"]["ac"]
 
 # Define Pricing Info
@@ -72,15 +73,22 @@ st.header("☀️ Solar System")
 
 solar_capacity = st.number_input('Solar Capacity (kW-DC)')
 dc_ac_ratio = st.number_input('DC-AC Ratio')
-array_type = st.radio("Module Type",('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking')
-    if array_type == 'Fixed - Open Rack': 0
-    elif array type == 'Fixed - Roof Mounted': 1
-    elif array type == 'Single Axis Tracker': 2
-    elif array type == 'Single Axis Tracker with Backtracking': 3
-module_type = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
-    if module_type == 'Standard': module_type = 0
-    elif module_type == 'Premium': module_type = 1
-    elif module_type == 'Thin film': module_type = 2
+array_type_selection = st.radio("Module Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
+if array_type_selection == 'Fixed - Open Rack': 
+    array_type = 0
+elif array_type_selection == 'Fixed - Roof Mounted': 
+    array_type = 1
+elif array_type_selection == 'Single Axis Tracker': 
+    array_type = 2
+elif array_type_selection == 'Single Axis Tracker with Backtracking': 
+    array_type = 3
+module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
+if module_type_selection == 'Standard': 
+    module_type = 0
+elif module_type_selection == 'Premium': 
+    module_type = 1
+elif module_type_selection == 'Thin film': 
+    module_type = 2
 tilt = st.number_input('Tilt', value=10)
 azimuth = st.number_input('Azimuth', value=180)
 losses = st.number_input('Losses %', value=14)
@@ -146,8 +154,7 @@ if st.button('Run Optimization'):
     total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
     # Fetch solar output from PV Watts
-    
-    solar_output = fetch_solar_output(api_key, address, system_capacity, dc_ac_ration, module_type, array_type, tilt, azimuth, losses) 
+    solar_output = fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses) 
                                       
     # Create a function to define the optimization model
     def optimization_model(num_hours, da_prices):
