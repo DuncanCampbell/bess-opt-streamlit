@@ -91,7 +91,7 @@ with col4
 
 st.header("🔋 Battery System")
 
-col4, col5 = st.columns(2)
+col5, col6 = st.columns(2)
 
 with col5:
     energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
