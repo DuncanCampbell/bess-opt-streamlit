@@ -125,19 +125,6 @@ if st.button('Run Optimization'):
 
     st.info('Optimization started', icon="🤯")
     
-    # Get data from gridstatus.io
-    API_Key = "ebb576413c2308080c81d9ded9ae8c86"
-    client = GridStatusClient(API_Key)
-
-    grid_status_data = client.get_dataset(
-        dataset="caiso_lmp_day_ahead_hourly",
-        filter_column="location",
-        filter_value=pricing_node,
-        start=start_date.strftime('%Y-%m-%d'),
-        end=end_date.strftime('%Y-%m-%d'),
-        tz="US/Pacific",  # return time stamps in Pacific time
-    )
-
     # Create dataframe for relevant columns and extract prices as a list from it
     da_prices_df = pd.read_csv('pge_rates.csv')
     da_prices_df = da_prices_df.rename(columns={'date-time': 'interval_start_local', '$/kWh': 'lmp'})
