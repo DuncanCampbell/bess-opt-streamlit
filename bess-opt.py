@@ -32,7 +32,7 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
     params = {
         "api_key": api_key,
         "address": address,
-        "system_capacity": solar_capacity,
+        "system_capacity": system_capacity,
         "dc_ac_ratio": dc_ac_ratio,
         "module_type": module_type,
         "array_type": array_type,
@@ -61,7 +61,7 @@ with col2:
 
 st.header("☀️ Solar System")
 
-solar_capacity = st.number_input('Solar Capacity (kW-DC)')
+system_capacity = st.number_input('Solar Capacity (kW-DC)')
 col3, col4 = st.columns(2)
 with col3:
        dc_ac_ratio = st.number_input('DC-AC Ratio')
