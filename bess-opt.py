@@ -139,7 +139,8 @@ if st.button('Run Optimization'):
     )
 
     # Create dataframe for relevant columns and extract prices as a list from it
-    da_prices_df = grid_status_data[["interval_start_local", "lmp"]]
+    da_prices_df = pd.read_csv('pge_rates.csv')
+    da_prices_df = da_prices_df.rename(columns={'date-time': 'interval_start_local', '$/kWh': 'lmp'})
     da_prices = da_prices_df['lmp'].tolist()
 
     # Price Forecast for num_hours hours
