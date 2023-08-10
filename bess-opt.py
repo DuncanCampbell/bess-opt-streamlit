@@ -76,7 +76,7 @@ with col3:
        elif array_type_selection == 'Single Axis Tracker with Backtracking': 
            array_type = 3
        tilt = st.number_input('Tilt', value=10)
-with col4
+with col4:
        losses = st.number_input('Losses %', value=14)
        module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
        if module_type_selection == 'Standard': 
