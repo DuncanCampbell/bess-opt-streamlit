@@ -32,7 +32,7 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
     params = {
         "api_key": api_key,
         "address": address,
-        "system_capacity": system_capacity,
+        "system_capacity": solar_capacity,
         "dc_ac_ratio": dc_ac_ratio,
         "module_type": module_type,
         "array_type": array_type,
