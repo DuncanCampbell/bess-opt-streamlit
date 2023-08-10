@@ -22,6 +22,31 @@ hide_default_format = """
 
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
+# Function to fetch solar output from PV Watts
+
+def fetch_solar_output(api_key, lat, lon, system_capacity, module_type, losses):
+    NREL_API_Key = "7ENvpt1oAXJkRb56AtQOPttQJQJm5nF5lyeMkxXe"
+    pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
+    endpoint = f"{pvwatts_base_url}/data"
+    
+    params = {
+        "api_key": api_key,
+        "address"; address,
+        "system_capacity": solar_capacity,
+        "dc_ac_ratio": dc_ac_ratio,
+        "module_type": module_type,
+        "array_type": array_type,
+        "tilt": tilt,
+        "azimuth": azimuth,
+        "losses": losses,
+        "timeframe": "hourly",
+    }
+    
+    response = requests.get(endpoint, params=params)
+    data = response.json()
+    
+    return data["outputs"]["ac"]
+
 # Define Pricing Info
 
 st.header("💸 Energy Market Inputs")
@@ -36,9 +61,33 @@ with col1:
 with col2:
     end_date = st.date_input("End Date", value=pd.to_datetime('2023-01-01'), key="end_date")
 
-# Define Battery Parameters
+# Site Information
 
-st.header("🔋 Battery Parameters")
+address = st.text_input('Site Address', 'Number Street, State Zip')
+utility = st.radio("Utility",('PG&E', 'SCE'))
+
+# Define Solar System
+
+st.header("☀️ Solar System")
+
+solar_capacity = st.number_input('Solar Capacity (kW-DC)')
+dc_ac_ratio = st.number_input('DC-AC Ratio')
+array_type = st.radio("Module Type",('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking')
+    if array_type == 'Fixed - Open Rack': 0
+    elif array type == 'Fixed - Roof Mounted': 1
+    elif array type == 'Single Axis Tracker': 2
+    elif array type == 'Single Axis Tracker with Backtracking': 3
+module_type = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
+    if module_type == 'Standard': module_type = 0
+    elif module_type == 'Premium': module_type = 1
+    elif module_type == 'Thin film': module_type = 2
+tilt = st.number_input('Tilt', value=10)
+azimuth = st.number_input('Azimuth', value=180)
+losses = st.number_input('Losses %', value=14)
+
+# Define Battery System
+
+st.header("🔋 Battery System")
 
 col1, col2 = st.columns(2)
 
@@ -96,6 +145,10 @@ if st.button('Run Optimization'):
     num_days = num_hours / 24
     total_cycle_limit = (num_days / 365) * annual_cycle_limit
 
+    # Fetch solar output from PV Watts
+    
+    solar_output = fetch_solar_output(api_key, address, system_capacity, dc_ac_ration, module_type, array_type, tilt, azimuth, losses) 
+                                      
     # Create a function to define the optimization model
     def optimization_model(num_hours, da_prices):
         # Variables
@@ -107,7 +160,7 @@ if st.button('Run Optimization'):
         prob = LpProblem("Battery Scheduling", LpMaximize)
 
         # Objective function
-        prob += lpSum([da_prices[t] * discharge_efficiency * discharge_vars[t] - da_prices[t] * charge_vars[t] / charge_efficiency for t in range(num_hours)])
+        prob += lpSum([da_prices[t] * (solar_output[t] + discharge_efficiency * discharge_vars[t] - charge_vars[t] / charge_efficiency) for t in range(num_hours)])
 
         # Constraints
         # Initial SOC constraint
