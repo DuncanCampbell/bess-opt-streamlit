@@ -27,7 +27,7 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses):
     pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
-    endpoint = f"{pvwatts_base_url}/data.json"
+    endpoint = f"{pvwatts_base_url}.json"
 
     params = {
         "api_key": api_key,
