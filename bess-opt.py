@@ -65,15 +65,13 @@ system_capacity = st.number_input('Solar Capacity (kW-DC)')
 col3, col4 = st.columns(2)
 with col3:
        dc_ac_ratio = st.number_input('DC-AC Ratio')
-       array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
+       array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker'))
        if array_type_selection == 'Fixed - Open Rack': 
            array_type = 0
        elif array_type_selection == 'Fixed - Roof Mounted': 
            array_type = 1
        elif array_type_selection == 'Single Axis Tracker': 
            array_type = 2
-       elif array_type_selection == 'Single Axis Tracker with Backtracking': 
-           array_type = 3
        tilt = st.number_input('Tilt', value=10)
 with col4:
        losses = st.number_input('Losses %', value=14)
@@ -125,7 +123,11 @@ if st.button('Run Optimization'):
     st.info('Optimization started', icon="🤯")
     
     # Create dataframe for relevant columns and extract prices as a list from it
-    da_prices_df = pd.read_csv('pge_rates.csv')
+    if utility == 'PG&E':
+        da_prices_df = pd.read_csv('pge_rates.csv')
+    elif utility == 'SCE':
+        da_prices_df = pd.read_csv('sce_rates.csv')
+
     da_prices_df = da_prices_df.rename(columns={'date-time': 'interval_start_local', '$/kWh': 'lmp'})
     da_prices = da_prices_df['lmp'].tolist()
 
