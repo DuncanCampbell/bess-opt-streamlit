@@ -51,12 +51,12 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
 st.title('CACS-Opt')
 
 # Site Information
-st.header("🗺️ Site Information")
-col1, col2 = st.columns(2)
-with col1:
-       address = st.text_input('Site Address', 'Number Street, State Zip')
-with col2:
-       utility = st.radio("Utility",('PG&E', 'SCE'))
+with st.expander("🗺️ Site Information"):
+    col1, col2 = st.columns(2)
+    with col1:
+           address = st.text_input('Site Address', 'Number Street, State Zip')
+    with col2:
+           utility = st.radio("Utility",('PG&E', 'SCE'))
 
 # Solar System
 with st.expander("☀️ Solar System"):
