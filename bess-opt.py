@@ -64,15 +64,13 @@ with st.expander("☀️ Solar System"):
     col3, col4 = st.columns(2)
     with col3:
         dc_ac_ratio = st.number_input('DC-AC Ratio')
-        array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
+        array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker'))
         if array_type_selection == 'Fixed - Open Rack': 
             array_type = 0
         elif array_type_selection == 'Fixed - Roof Mounted': 
             array_type = 1
         elif array_type_selection == 'Single Axis Tracker': 
             array_type = 2
-        elif array_type_selection == 'Single Axis Tracker with Backtracking': 
-            array_type = 3
         tilt = st.number_input('Tilt', value=10)
     with col4:
         losses = st.number_input('Losses %', value=14)
