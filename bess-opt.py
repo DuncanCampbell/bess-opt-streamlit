@@ -44,13 +44,14 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
 
     response = requests.get(endpoint, params=params)
     data = response.json()
-
+    data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
     return data["outputs"]["ac"]
 
+# Title
+st.title('CA Community Solar Revenue Optimizer')
+
 # Site Information
-
 st.header("🗺️ Site Information")
-
 col1, col2 = st.columns(2)
 with col1:
        address = st.text_input('Site Address', 'Number Street, State Zip')
@@ -58,9 +59,7 @@ with col2:
        utility = st.radio("Utility",('PG&E', 'SCE'))
 
 # Define Solar System
-
 st.header("☀️ Solar System")
-
 system_capacity = st.number_input('Solar Capacity (kW-DC)')
 col3, col4 = st.columns(2)
 with col3:
@@ -85,24 +84,21 @@ with col4:
        azimuth = st.number_input('Azimuth', value=180)
 
 # Define Battery System
-
 st.header("🔋 Battery System")
-
 col5, col6 = st.columns(2)
-
 with col5:
-    energy_capacity = st.slider("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f", key="energy_capacity")
-    charge_power_limit = st.slider("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="charge_power_limit")
-    discharge_power_limit = st.slider("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f", key="discharge_power_limit")
-    SOC_initial = st.slider("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_initial")
-    daily_cycle_limit = st.slider("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f", key="daily_cycle_limit")
-
+    energy_capacity = st.number_input("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f")
+    charge_power_limit = st.number_input("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f")
+    discharge_power_limit = st.number_input("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f")
+    SOC_initial = st.number_input("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f")
+    daily_cycle_limit = st.number_input("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f")
 with col6:
-    discharge_efficiency = st.slider("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="discharge_efficiency")
-    charge_efficiency = st.slider("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f", key="charge_efficiency")
-    SOC_max = st.slider("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f", key="SOC_max")
-    SOC_min = st.slider("Min SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f", key="SOC_min")
-    annual_cycle_limit = st.slider("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f", key="annual_cycle_limit")
+    discharge_efficiency = st.number_input("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f")
+    charge_efficiency = st.number_input("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f")
+    SOC_max = st.number_input("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f")
+    SOC_min = st.number_input("Min SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f")
+    annual_cycle_limit = st.number_input("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f")
+
 
 # Initialize variables
 results_df = None
