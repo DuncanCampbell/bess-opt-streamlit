@@ -58,47 +58,48 @@ with col1:
 with col2:
        utility = st.radio("Utility",('PG&E', 'SCE'))
 
-# Define Solar System
-st.header("☀️ Solar System")
-system_capacity = st.number_input('Solar Capacity (kW-DC)')
-col3, col4 = st.columns(2)
-with col3:
-       dc_ac_ratio = st.number_input('DC-AC Ratio')
-       array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker'))
-       if array_type_selection == 'Fixed - Open Rack': 
-           array_type = 0
-       elif array_type_selection == 'Fixed - Roof Mounted': 
-           array_type = 1
-       elif array_type_selection == 'Single Axis Tracker': 
-           array_type = 2
-       tilt = st.number_input('Tilt', value=10)
-with col4:
-       losses = st.number_input('Losses %', value=14)
-       module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
-       if module_type_selection == 'Standard': 
-           module_type = 0
-       elif module_type_selection == 'Premium': 
-           module_type = 1
-       elif module_type_selection == 'Thin film': 
-           module_type = 2
-       azimuth = st.number_input('Azimuth', value=180)
+# Solar System
+with st.expander("☀️ Solar System"):
+    solar_capacity = st.number_input('Solar Capacity (kW-DC)')
+    col3, col4 = st.columns(2)
+    with col3:
+        dc_ac_ratio = st.number_input('DC-AC Ratio')
+        array_type_selection = st.radio("Array Type", ('Fixed - Open Rack', 'Fixed - Roof Mounted', 'Single Axis Tracker', 'Single Axis Tracker with Backtracking'))
+        if array_type_selection == 'Fixed - Open Rack': 
+            array_type = 0
+        elif array_type_selection == 'Fixed - Roof Mounted': 
+            array_type = 1
+        elif array_type_selection == 'Single Axis Tracker': 
+            array_type = 2
+        elif array_type_selection == 'Single Axis Tracker with Backtracking': 
+            array_type = 3
+        tilt = st.number_input('Tilt', value=10)
+    with col4:
+        losses = st.number_input('Losses %', value=14)
+        module_type_selection = st.radio("Module Type",('Standard', 'Premium', 'Thin film'))
+        if module_type_selection == 'Standard': 
+            module_type = 0
+        elif module_type_selection == 'Premium': 
+            module_type = 1
+        elif module_type_selection == 'Thin film': 
+            module_type = 2
+        azimuth = st.number_input('Azimuth', value=180)
 
-# Define Battery System
-st.header("🔋 Battery System")
-col5, col6 = st.columns(2)
-with col5:
-    energy_capacity = st.number_input("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0, step=1.0, format="%.1f")
-    charge_power_limit = st.number_input("Charge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f")
-    discharge_power_limit = st.number_input("Discharge power limit (MW)", min_value=0.0, max_value=energy_capacity, value=25.0, step=1.0, format="%.1f")
-    SOC_initial = st.number_input("Initial SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f")
-    daily_cycle_limit = st.number_input("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0, step=1.0, format="%.1f")
-with col6:
-    discharge_efficiency = st.number_input("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f")
-    charge_efficiency = st.number_input("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95, step=0.01, format="%.2f")
-    SOC_max = st.number_input("Max SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=100.0, step=1.0, format="%.1f")
-    SOC_min = st.number_input("Min SOC (MWh)", min_value=0.0, max_value=energy_capacity, value=0.0, step=1.0, format="%.1f")
-    annual_cycle_limit = st.number_input("Annual cycle limit", min_value=0.0, max_value=daily_cycle_limit * 365, value=300.0, step=1.0, format="%.1f")
-
+# Battery System
+with st.expander("🔋 Battery System"):
+    col5, col6 = st.columns(2)
+    with col5:
+        energy_capacity = st.number_input("Energy capacity (MWh)", min_value=0.0, max_value=1000.0, value=100.0)
+        charge_power_limit = st.number_input("Charge power limit (MW)", min_value=0.0, value=25.0)
+        discharge_power_limit = st.number_input("Discharge power limit (MW)", min_value=0.0, value=25.0)
+        SOC_initial = st.number_input("Initial SOC (MWh)", min_value=0.0, value=0.0)
+        daily_cycle_limit = st.number_input("Daily cycle limit", min_value=0.0, max_value=10.0, value=1.0)
+    with col6:
+        discharge_efficiency = st.number_input("Discharge efficiency", min_value=0.0, max_value=1.0, value=0.95)
+        charge_efficiency = st.number_input("Charge efficiency", min_value=0.0, max_value=1.0, value=0.95)
+        SOC_max = st.number_input("Max SOC (MWh)", min_value=0.0, value=100.0)
+        SOC_min = st.number_input("Min SOC (MWh)", min_value=0.0, value=0.0)
+        annual_cycle_limit = st.number_input("Annual cycle limit", min_value=0.0, value=300.0)
 
 # Initialize variables
 results_df = None
