@@ -73,6 +73,9 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
 # Title
 st.title('CACS-Opt')
 
+# Header
+st.header('Inputs')
+
 # Site Information
 with st.expander("🗺️ Site Information"):
     col1, col2 = st.columns(2)
@@ -129,6 +132,8 @@ chart_data = None
 # Button to run the optimization
 if st.button('Run Optimization'):
 
+# Outputs Header
+st.header('Outputs')
     # Make it rain
     from streamlit_extras.let_it_rain import rain
     rain(
