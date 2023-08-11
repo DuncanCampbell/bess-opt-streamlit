@@ -60,7 +60,7 @@ with st.expander("🗺️ Site Information"):
 
 # Solar System
 with st.expander("☀️ Solar System"):
-    solar_capacity = st.number_input('Solar Capacity (kW-DC)')
+    system_capacity = st.number_input('Solar Capacity (kW-DC)')
     col3, col4 = st.columns(2)
     with col3:
         dc_ac_ratio = st.number_input('DC-AC Ratio')
