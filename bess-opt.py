@@ -165,7 +165,7 @@ if st.button('Run Optimization'):
         prob = LpProblem("Battery Scheduling", LpMaximize)
 
         # Objective function
-        prob += lpSum([da_prices[t] * (solar_output[t] + discharge_efficiency * discharge_vars[t] - charge_vars[t] / charge_efficiency) for t in range(num_hours)])
+        prob += lpSum([da_prices[t] * (solar_output[t] + discharge_efficiency * discharge_vars[t] - charge_vars[t] * (1.0 / charge_efficiency)) for t in range(num_hours)])
 
         # Constraints
         # Initial SOC constraint
