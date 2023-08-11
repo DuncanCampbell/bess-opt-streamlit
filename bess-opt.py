@@ -11,7 +11,7 @@ import base64
 #Streamlit Setup
 
 #width
-st.set_page_config(layout="centered")
+st.set_page_config(layout="wide")
 
 #hide menu bars
 hide_default_format = """
