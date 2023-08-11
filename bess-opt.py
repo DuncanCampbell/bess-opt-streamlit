@@ -11,7 +11,7 @@ import base64
 #Streamlit Setup
 
 #width
-st.set_page_config(layout="wide")
+st.set_page_config(layout="centered")
 
 #hide menu bars
 hide_default_format = """
@@ -48,7 +48,7 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
     return data["outputs"]["ac"]
 
 # Title
-st.title('CA Community Solar Revenue Optimizer')
+st.title('CACS-Opt')
 
 # Site Information
 st.header("🗺️ Site Information")
