@@ -43,16 +43,28 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
     }
 
     response = requests.get(endpoint, params=params)
-    data = response.json()
-    data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
-    return data["outputs"]["ac"]
+
+    # Print debugging information
+    st.write("Status Code:", response.status_code)
+    st.write("Headers:", response.headers)
+    st.write("Response Content:", response.text)
+
     if response.status_code != 200:
         st.error(f"API request failed with status code {response.status_code}: {response.text}")
         return None
+
     if not response.text.strip():
         st.error("Received empty response from the API.")
         return None
-    print(response.text)
+
+    try:
+        data = response.json()
+        data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
+        return data["outputs"]["ac"]
+    except json.decoder.JSONDecodeError:
+        st.error("Failed to decode JSON response from the API.")
+        return None
+
 
 # Title
 st.title('CACS-Opt')
