@@ -41,21 +41,8 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
         "losses": losses,
         "timeframe": "hourly",
     }
-
-    # Print the generated API URL for debugging
-    generated_url = f"{endpoint}?{'&'.join([f'{key}={value}' for key, value in params.items()])}"
-    st.write(f"Generated API URL: {generated_url}")
  
     response = requests.get(endpoint, params=params)
-
-    # Print debugging information
-    st.write("Status Code:", response.status_code)
-    st.write("Headers:", response.headers)
-    
-    if response.status_code != 200:
-        st.error(f"API request failed with status code {response.status_code}: {response.text}")
-        return None
-
     data = response.json()
     data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
     return data["outputs"]["ac"]
