@@ -26,8 +26,8 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 # Function to fetch solar output from PV Watts
 
 def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_type, array_type, tilt, azimuth, losses):
-    pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8.json"
-    endpoint = f"{pvwatts_base_url}/data"
+    pvwatts_base_url = "https://developer.nrel.gov/api/pvwatts/v8"
+    endpoint = f"{pvwatts_base_url}/data.json"
 
     params = {
         "api_key": api_key,
@@ -42,33 +42,24 @@ def fetch_solar_output(api_key, address, system_capacity, dc_ac_ratio, module_ty
         "timeframe": "hourly",
     }
 
-    # Print the generated URL
-    generated_url = f"{endpoint}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
-    st.write("Generated API URL:", generated_url)
-    
+    # Print the generated API URL for debugging
+    generated_url = f"{endpoint}?{'&'.join([f'{key}={value}' for key, value in params.items()])}"
+    st.write(f"Generated API URL: {generated_url}")
+
     response = requests.get(endpoint, params=params)
 
     # Print debugging information
     st.write("Status Code:", response.status_code)
     st.write("Headers:", response.headers)
     st.write("Response Content:", response.text)
-
+    
     if response.status_code != 200:
         st.error(f"API request failed with status code {response.status_code}: {response.text}")
         return None
 
-    if not response.text.strip():
-        st.error("Received empty response from the API.")
-        return None
-
-    try:
-        data = response.json()
-        data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
-        return data["outputs"]["ac"]
-    except json.decoder.JSONDecodeError:
-        st.error("Failed to decode JSON response from the API.")
-        return None
-
+    data = response.json()
+    data["outputs"]["ac"] = [x / 1000000 for x in data["outputs"]["ac"]] # convert to MW from W
+    return data["outputs"]["ac"]
 
 # Title
 st.title('CACS-Opt')
@@ -132,8 +123,9 @@ chart_data = None
 # Button to run the optimization
 if st.button('Run Optimization'):
 
-# Outputs Header
-st.header('Outputs')
+    # Outputs Header
+    st.header('Outputs')
+    
     # Make it rain
     from streamlit_extras.let_it_rain import rain
     rain(
